@@ -17,7 +17,7 @@ contract Election {
   }
 
   modifier onlyAdmin{
-    if (msg.sender != admin) throw;
+    require(msg.sender == admin);
     _;
   }
 
@@ -25,10 +25,10 @@ contract Election {
     return admin;
   }
 
-  function handOverAdmin(address _newAdmin)
+  function handOverAdmin(address _newAdmin) public
   onlyAdmin
   {
-    if(_newAdmin == 0x0) throw;
+    require(_newAdmin == address(0x0));
     admin = _newAdmin;
   }
 }
