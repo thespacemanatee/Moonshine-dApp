@@ -3,10 +3,19 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 
-import Migration from "../contracts/Migrations.json";
+import { useWeb3 } from "@providers/index";
+import { useEffect } from "react";
 
 const Home: NextPage = () => {
-  console.log(Migration);
+  const { web3 } = useWeb3();
+
+  useEffect(() => {
+    if (web3) {
+      (async () => {
+        console.log(await web3?.eth.getAccounts());
+      })();
+    }
+  }, []);
 
   return (
     <div className={styles.container}>

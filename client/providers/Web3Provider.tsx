@@ -16,8 +16,12 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
 
   useEffect(() => {
     const initWeb3 = async () => {
-      const res = await getWeb3();
-      setWeb3(res);
+      try {
+        const res = await getWeb3();
+        setWeb3(res);
+      } catch (err) {
+        console.error(err);
+      }
     };
     initWeb3();
   }, []);
