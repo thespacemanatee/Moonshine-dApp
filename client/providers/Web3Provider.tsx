@@ -1,8 +1,12 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import Web3 from "web3";
 
+import Election from "../contracts/Election.json";
+
 type Web3ContextProps = {
   web3?: Web3;
+  currentAddress?: string;
+  isAdmin: boolean;
 };
 
 const Web3Context = React.createContext<Web3ContextProps | null>(null);
@@ -13,12 +17,29 @@ type Web3ProviderProps = {
 
 const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [web3, setWeb3] = useState<Web3>();
+  const [currentAddress, setCurrentAddress] = useState<string>();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const initWeb3 = async () => {
       try {
         const res = await getWeb3();
         setWeb3(res);
+        const accounts = await res.eth.getAccounts();
+        const account = accounts[0];
+        setCurrentAddress(account);
+
+        // Get the contract instance.
+        const networkId = await res.eth.net.getId();
+        const deployedNetwork = Election.networks[networkId];
+        const instance = new res.eth.Contract(
+          Election.abi,
+          deployedNetwork && deployedNetwork.address
+        );
+        const adminAddress = await instance.methods.getAdmin().call();
+        console.log(adminAddress === account);
+
+        setIsAdmin(adminAddress === account);
       } catch (err) {
         console.error(err);
       }
@@ -53,7 +74,10 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
       });
     });
 
-  const contextValue = useMemo(() => ({ web3 }), [web3]);
+  const contextValue = useMemo(
+    () => ({ web3, currentAddress, isAdmin }),
+    [currentAddress, isAdmin, web3]
+  );
 
   return (
     <Web3Context.Provider value={contextValue}>{children}</Web3Context.Provider>

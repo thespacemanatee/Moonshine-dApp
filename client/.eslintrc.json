@@ -1,6 +1,9 @@
 {
   "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
   "settings": {
+    "next": {
+      "rootDir": "client/"
+    },
     "import/resolver": {
       "babel-module": {}
     }
