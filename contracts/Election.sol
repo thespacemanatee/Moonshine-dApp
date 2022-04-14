@@ -134,15 +134,15 @@ contract Election {
     mapping(address => Voter) public voterSet;
     
     //register a voter
-    function registerAsVoter(string memory _name, string memory _phone) public {
+    function registerAsVoter(address _voterAddress) public onlyAdmin {
         Voter memory newVoter =
             Voter({
-                voterAddress: msg.sender,
+                voterAddress: _voterAddress,
                 hasVoted: false,
                 isRegistered: true
             });
-        voterSet[msg.sender] = newVoter;
-        RegisteredVoters.push(msg.sender);
+        voterSet[_voterAddress] = newVoter;
+        RegisteredVoters.push(_voterAddress);
         participantCount += 1;
     }
 
