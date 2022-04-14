@@ -8,10 +8,12 @@ contract Election {
     uint256 startTime;
     uint256 endTime;
     // string[] options;
-    uint256 participantNum;
+    uint256 participantCount;
     uint256 candidateCount;
     bool allowMultipleOption;
     bool stopOnTime;
+    bool start;
+    bool end;
 
     constructor() public {
         admin = msg.sender;
@@ -20,9 +22,11 @@ contract Election {
         startTime = 0;
         endTime = 0;
         // options = [];
-        participantNum = 0;
+        participantCount = 0;
         allowMultipleOption = false;
         stopOnTime = true;
+        start = true;
+        end = false;
     }
 
     modifier onlyAdmin() {
@@ -72,12 +76,12 @@ contract Election {
         endTime = NewendTime;
     }
 
-    function getParticipantNum() public view returns (uint256) {
-        return participantNum;
+    function getParticipantCount() public view returns (uint256) {
+        return participantCount;
     }
 
-    function setParticipantNum(uint256 NewparticipantNum) public onlyAdmin {
-        participantNum = NewparticipantNum;
+    function setParticipantCount(uint256 NewparticipantNum) public onlyAdmin {
+        participantCount = NewparticipantNum;
     }
 
     function getAllowMultipleOption() public view returns (uint) {
@@ -121,5 +125,41 @@ contract Election {
         candidateCount += 1;
     }
 
+    struct Voter {
+        address voterAddress;
+        bool hasVoted;
+        bool isRegistered;
+    }
+    address[] public RegisteredVoters; // Array of address to store address of voters
+    mapping(address => Voter) public voterSet;
     
+    //register a voter
+    function registerAsVoter(string memory _name, string memory _phone) public {
+        Voter memory newVoter =
+            Voter({
+                voterAddress: msg.sender,
+                hasVoted: false,
+                isRegistered: true
+            });
+        voterSet[msg.sender] = newVoter;
+        RegisteredVoters.push(msg.sender);
+        participantCount += 1;
+    }
+
+    // Vote
+    function vote(uint256 candidateId) public {
+        require(voterSet[msg.sender].hasVoted == false);
+        require(voterSet[msg.sender].isRegistered == true);
+        require(start == true);
+        require(end == false);
+        candidateSet[candidateId].voteCount += 1;
+        voterSet[msg.sender].hasVoted = true;
+    }
+
+    // End election
+    function endElection() public onlyAdmin {
+        end = true;
+        start = false;
+    }
+
 }
