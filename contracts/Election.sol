@@ -134,7 +134,7 @@ contract Election {
     mapping(address => Voter) public voterSet;
     
     //register a voter
-    function registerAsVoter(address _voterAddress) public onlyAdmin {
+    function registerVoter(address _voterAddress) public onlyAdmin {
         Voter memory newVoter =
             Voter({
                 voterAddress: _voterAddress,
