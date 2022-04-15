@@ -3,7 +3,6 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract Election {
     address admin;
-    string electionName;
     uint256 startTime;
     uint256 endTime;
     // string[] options;
@@ -14,7 +13,6 @@ contract Election {
 
     constructor() {
         admin = msg.sender;
-        electionName = "";
         startTime = 0;
         endTime = 0;
         // options = [];
@@ -22,6 +20,14 @@ contract Election {
         stopOnTime = true;
         inProgress = false;
     }
+
+    // Modeling a Election Details
+    struct ElectionDetails {
+        string electionName;
+        string organizationName;
+    }
+
+    ElectionDetails electionDetails;
 
     struct Candidate {
         uint256 candidateId;
@@ -46,60 +52,16 @@ contract Election {
         _;
     }
 
-    //Getters and Setters
-    function getAdmin() public view returns (address) {
-        return admin;
-    }
-
-    function setAdmin(address _newAdmin) public onlyAdmin {
-        require(_newAdmin == address(0x0));
-        admin = _newAdmin;
-    }
-
-    function getElectionName() public view returns (string memory) {
-        return electionName;
-    }
-
-    function setElectionName(string memory newElectionName) public onlyAdmin {
-        electionName = newElectionName;
-    }
-
-    function getStartTime() public view returns (uint256) {
-        return startTime;
-    }
-
-    function setStartTime(uint256 newStartTime) public onlyAdmin {
-        startTime = newStartTime;
-    }
-
-    function getEndTime() public view returns (uint256) {
-        return endTime;
-    }
-
-    function setEndTime(uint256 newEndTime) public onlyAdmin {
-        endTime = newEndTime;
-    }
-
-    function getParticipantCount() public view returns (uint256) {
-        return registeredVoters.length;
-    }
-
-    function getAllowMultipleOption() public view returns (uint) {
-        return startTime;
-    }
-
-    function setAllowMultipleOption(bool newAllowMultipleOption) public
-    onlyAdmin
-    {
-        allowMultipleOption = newAllowMultipleOption;
-    }
-
-    function getStopOnTime() public view returns (bool) {
-        return stopOnTime;
-    }
-
-    function setStopOnTime(bool newStopOnTime) public onlyAdmin {
-        stopOnTime = newStopOnTime;
+    // Initialize and start the election
+    function initElection(
+        string memory _electionName,
+        string memory _organizationName
+    ) public onlyAdmin {
+        electionDetails = ElectionDetails({
+            electionName: _electionName,
+            organizationName: _organizationName
+        });
+        inProgress = true;
     }
 
     // Adding new candidates
@@ -144,14 +106,57 @@ contract Election {
         voterSet[msg.sender].hasVoted = true;
     }
 
-    function startElection() public onlyAdmin {
-        require(inProgress == false);
-        inProgress = true;
-    }
-
     // End election
     function endElection() public onlyAdmin {
         require(inProgress == true);
         inProgress = false;
+    }
+
+    // Getters and Setters
+    function getAdmin() public view returns (address) {
+        return admin;
+    }
+
+    function setAdmin(address _newAdmin) public onlyAdmin {
+        require(_newAdmin == address(0x0));
+        admin = _newAdmin;
+    }
+    
+    function getStartTime() public view returns (uint256) {
+        return startTime;
+    }
+
+    function setStartTime(uint256 newStartTime) public onlyAdmin {
+        startTime = newStartTime;
+    }
+
+    function getEndTime() public view returns (uint256) {
+        return endTime;
+    }
+
+    function setEndTime(uint256 newEndTime) public onlyAdmin {
+        endTime = newEndTime;
+    }
+
+    function getParticipantCount() public view returns (uint256) {
+        return registeredVoters.length;
+    }
+
+    function getAllowMultipleOption() public view returns (uint) {
+        return startTime;
+    }
+
+    function setAllowMultipleOption(bool newAllowMultipleOption) public
+    onlyAdmin
+    {
+        allowMultipleOption = newAllowMultipleOption;
+    }
+
+    function getStopOnTime() public view returns (bool) {
+        return stopOnTime;
+    }
+
+    function setStopOnTime(bool newStopOnTime) public onlyAdmin {
+        stopOnTime = newStopOnTime;
     }
 }
