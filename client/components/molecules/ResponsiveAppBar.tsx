@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,8 +15,22 @@ import MenuItem from "@mui/material/MenuItem";
 
 import { useWeb3 } from "@providers/index";
 
-const adminPages = ["Election", "Candidates", "Registration", "Results"];
-const voterPages = ["Election", "Registration", "Results"];
+type Label = {
+  text: string;
+  href: string;
+};
+
+const adminPages: Label[] = [
+  { text: "Election", href: "/" },
+  { text: "Candidates", href: "/candidates" },
+  { text: "Verify", href: "/verify" },
+  { text: "Results", href: "/results" },
+];
+const voterPages: Label[] = [
+  { text: "Election", href: "/" },
+  { text: "Registration", href: "/registration" },
+  { text: "Results", href: "/results" },
+];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const ResponsiveAppBar = () => {
@@ -83,8 +98,8 @@ const ResponsiveAppBar = () => {
               }}
             >
               {adminPages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.href} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page.text}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -99,13 +114,14 @@ const ResponsiveAppBar = () => {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {(isAdmin ? adminPages : voterPages).map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
+              <Link key={page.text} href={page.href} passHref>
+                <Button
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  {page.text}
+                </Button>
+              </Link>
             ))}
           </Box>
 

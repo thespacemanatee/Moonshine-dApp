@@ -3,24 +3,26 @@ import { styled } from "@mui/material/styles";
 import RegTableDetail from "./RegTableDetails";
 
 export type TableData = {
-    accountAddr: string,
-    name: string,
-    phone: number,
-    registered: boolean,
-    verified: boolean,
-    voted: boolean
-}
+  accountAddr: string;
+  name: string;
+  phone: number;
+  registered: boolean;
+  verified: boolean;
+  voted: boolean;
+};
 
-export const Registration = () => {
+const Registration = () => {
   const isDetailsValid = true; //voter can only submit a registration request if details are in valid format
 
   const rows: TableData[] = [
-      {accountAddr: "carey", 
-      name: "0x1111", 
-      phone: 81016335, 
-      registered: false, 
-      verified: true, 
-      voted: true} //replace these values with Provider values
+    {
+      accountAddr: "carey",
+      name: "0x1111",
+      phone: 81016335,
+      registered: false,
+      verified: true,
+      voted: true,
+    }, //replace these values with Provider values
   ];
 
   return (
@@ -40,3 +42,5 @@ export const Registration = () => {
     </div>
   );
 };
+
+export default Registration;
