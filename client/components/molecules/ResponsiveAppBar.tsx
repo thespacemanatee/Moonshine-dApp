@@ -22,7 +22,6 @@ type Label = {
 
 const adminPages: Label[] = [
   { text: "Election", href: "/" },
-  { text: "Candidates", href: "/candidates" },
   { text: "Verify", href: "/verify" },
   { text: "Results", href: "/results" },
 ];
@@ -38,7 +37,6 @@ const ResponsiveAppBar = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const { isAdmin } = useWeb3();
-  console.log(isAdmin);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

@@ -6,6 +6,8 @@ import Election from "../contracts/Election.json";
 type Web3ContextProps = {
   web3?: Web3;
   currentAddress?: string;
+  currentBalance?: string;
+  currentNetworkType?: string;
   isAdmin: boolean;
 };
 
@@ -18,6 +20,8 @@ type Web3ProviderProps = {
 const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [web3, setWeb3] = useState<Web3>();
   const [currentAddress, setCurrentAddress] = useState<string>();
+  const [currentBalance, setCurrentBalance] = useState<string>();
+  const [currentNetworkType, setCurrentNetworkType] = useState<string>();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -27,12 +31,18 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         setWeb3(res);
         const accounts = await res.eth.getAccounts();
         const account = accounts[0];
+        const balance = await res.eth.getBalance(account);
+        const networkType = await res.eth.net.getNetworkType();
         setCurrentAddress(account);
+        setCurrentBalance(balance);
+        setCurrentNetworkType(networkType);
 
         // Get the contract instance.
         const networkId = await res.eth.net.getId();
+        // @ts-ignore
         const deployedNetwork = Election.networks[networkId];
         const instance = new res.eth.Contract(
+          // @ts-ignore
           Election.abi,
           deployedNetwork && deployedNetwork.address
         );
@@ -75,8 +85,14 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
     });
 
   const contextValue = useMemo(
-    () => ({ web3, currentAddress, isAdmin }),
-    [currentAddress, isAdmin, web3]
+    () => ({
+      web3,
+      currentAddress,
+      currentBalance,
+      currentNetworkType,
+      isAdmin,
+    }),
+    [currentAddress, currentBalance, currentNetworkType, isAdmin, web3]
   );
 
   return (
