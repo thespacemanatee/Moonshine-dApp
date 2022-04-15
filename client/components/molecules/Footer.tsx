@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
             <a
-              href="https://flowbite.com"
+              href="#"
               target="_blank"
               rel="noreferrer"
               className="flex items-center"

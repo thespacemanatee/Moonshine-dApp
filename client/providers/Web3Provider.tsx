@@ -49,11 +49,6 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   };
 
   useEffect(() => {
-    window.ethereum.on("accountsChanged", (accounts: string[]) => {
-      if (web3) {
-        updateAccount(accounts, web3);
-      }
-    });
     const initWeb3 = async () => {
       try {
         const res = await getWeb3();
@@ -72,6 +67,11 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
       // Wait for loading completion to avoid race conditions with web3 injection timing.
       window.addEventListener("load", async () => {
         if (window.ethereum) {
+          window.ethereum.on("accountsChanged", (accounts: string[]) => {
+            if (web3) {
+              updateAccount(accounts, web3);
+            }
+          });
           const web3 = new Web3(window.ethereum);
           try {
             resolve(web3);

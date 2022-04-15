@@ -10,7 +10,6 @@ const Home: NextPage = () => {
   return (
     <div className="flex flex-1 justify-center py-16">
       <div className="w-4/5 min-w-fit">
-        <WalletDetailsCard />
         {isAdmin ? (
           <div className="my-12">
             <AdminElectionContainer />

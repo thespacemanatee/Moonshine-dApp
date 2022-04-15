@@ -14,6 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 
 import { useWeb3 } from "@providers/index";
+import { WalletDetailsCard } from "@components/ui";
 
 type Label = {
   text: string;
@@ -30,7 +31,7 @@ const voterPages: Label[] = [
   { text: "Registration", href: "/registration" },
   { text: "Results", href: "/results" },
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Account", "Dashboard"];
 
 const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -57,15 +58,13 @@ const ResponsiveAppBar = () => {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
-          >
-            LOGO
-          </Typography>
-
+          <a href="#" className="flex items-center">
+            <img
+              src="https://flowbite.com/docs/images/logo.svg"
+              className="mr-4 h-10"
+              alt="FlowBite Logo"
+            />
+          </a>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -95,21 +94,15 @@ const ResponsiveAppBar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {adminPages.map((page) => (
+              {(isAdmin ? adminPages : voterPages).map((page) => (
                 <MenuItem key={page.href} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page.text}</Typography>
+                  <Link key={page.text} href={page.href} passHref>
+                    <Typography textAlign="center">{page.text}</Typography>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
-          >
-            LOGO
-          </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {(isAdmin ? adminPages : voterPages).map((page) => (
               <Link key={page.text} href={page.href} passHref>
@@ -130,8 +123,8 @@ const ResponsiveAppBar = () => {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: "45px" }}
               id="menu-appbar"
+              className="mt-12"
               anchorEl={anchorElUser}
               anchorOrigin={{
                 vertical: "top",
@@ -145,11 +138,20 @@ const ResponsiveAppBar = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              {settings.map((setting, index) => {
+                if (index === 0) {
+                  return (
+                    <div className="m-4">
+                      <WalletDetailsCard />
+                    </div>
+                  );
+                }
+                return (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                );
+              })}
             </Menu>
           </Box>
         </Toolbar>
