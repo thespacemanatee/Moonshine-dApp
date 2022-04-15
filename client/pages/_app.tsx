@@ -9,16 +9,19 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import { Web3Provider } from "@providers/Web3Provider";
 import { Footer, ResponsiveAppBar } from "@components/molecules";
+import { ElectionProvider } from "providers";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Web3Provider>
-        <div className="h-screen">
-          <ResponsiveAppBar />
-          <Component {...pageProps} />
-          <Footer />
-        </div>
+        <ElectionProvider>
+          <div className="h-screen">
+            <ResponsiveAppBar />
+            <Component {...pageProps} />
+            <Footer />
+          </div>
+        </ElectionProvider>
       </Web3Provider>
     </LocalizationProvider>
   );

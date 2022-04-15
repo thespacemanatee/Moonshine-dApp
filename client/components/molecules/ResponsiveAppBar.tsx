@@ -96,7 +96,7 @@ const ResponsiveAppBar = () => {
             >
               {(isAdmin ? adminPages : voterPages).map((page) => (
                 <MenuItem key={page.href} onClick={handleCloseNavMenu}>
-                  <Link key={page.text} href={page.href} passHref>
+                  <Link href={page.href} passHref>
                     <Typography textAlign="center">{page.text}</Typography>
                   </Link>
                 </MenuItem>
@@ -141,7 +141,7 @@ const ResponsiveAppBar = () => {
               {settings.map((setting, index) => {
                 if (index === 0) {
                   return (
-                    <div className="m-4">
+                    <div key={setting} className="m-4">
                       <WalletDetailsCard />
                     </div>
                   );

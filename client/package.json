@@ -19,6 +19,7 @@
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0",
+    "react-lottie-player": "^1.4.2",
     "web3": "^1.7.3"
   },
   "devDependencies": {

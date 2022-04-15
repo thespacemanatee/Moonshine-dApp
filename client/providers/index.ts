@@ -1,1 +1,2 @@
 export { Web3Provider, useWeb3 } from "./Web3Provider";
+export { ElectionProvider, useElection } from "./ElectionProvider";
