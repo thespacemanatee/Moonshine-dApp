@@ -7,7 +7,6 @@ contract Election {
     uint256 startTime;
     uint256 endTime;
     // string[] options;
-    uint256 participantCount;
     uint256 candidateCount;
     bool allowMultipleOption;
     bool stopOnTime;
@@ -19,11 +18,28 @@ contract Election {
         startTime = 0;
         endTime = 0;
         // options = [];
-        participantCount = 0;
         allowMultipleOption = false;
         stopOnTime = true;
         inProgress = false;
     }
+
+    struct Candidate {
+        uint256 candidateId;
+        string name;
+        string description;
+        uint256 voteCount;
+    }
+    
+    mapping(uint256 => Candidate) public candidateSet;
+
+    struct Voter {
+        address voterAddress;
+        bool hasVoted;
+        bool isVerified;
+    }
+    
+    address[] public registeredVoters; // Array of address to store address of voters
+    mapping(address => Voter) public voterSet;
 
     modifier onlyAdmin() {
         require(msg.sender == admin);
@@ -65,11 +81,7 @@ contract Election {
     }
 
     function getParticipantCount() public view returns (uint256) {
-        return participantCount;
-    }
-
-    function setParticipantCount(uint256 newParticipantCount) public onlyAdmin {
-        participantCount = newParticipantCount;
+        return registeredVoters.length;
     }
 
     function getAllowMultipleOption() public view returns (uint) {
@@ -90,14 +102,6 @@ contract Election {
         stopOnTime = newStopOnTime;
     }
 
-    struct Candidate {
-        uint256 candidateId;
-        string name;
-        string description;
-        uint256 voteCount;
-    }
-    mapping(uint256 => Candidate) public candidateSet;
-
     // Adding new candidates
     function addCandidate(string memory _name, string memory _description) public
     onlyAdmin
@@ -112,28 +116,17 @@ contract Election {
         candidateSet[candidateCount] = newCandidate;
         candidateCount += 1;
     }
-
-    struct Voter {
-        address voterAddress;
-        bool hasVoted;
-        bool isRegistered;
-        bool isVerified;
-    }
-    address[] public registeredVoters; // Array of address to store address of voters
-    mapping(address => Voter) public voterSet;
     
-    //register a voter
+    // Register a voter
     function registerVoter() public  {
         Voter memory newVoter =
             Voter({
                 voterAddress: msg.sender,
                 hasVoted: false,
-                isRegistered: true,
                 isVerified: false
             });
-        voterSet[msg.sender] = newVoter;
         registeredVoters.push(msg.sender);
-        participantCount += 1;
+        voterSet[msg.sender] = newVoter;
     }
 
     // Verify a voter
@@ -145,7 +138,6 @@ contract Election {
     // Vote
     function vote(uint256 candidateId) public {
         require(voterSet[msg.sender].hasVoted == false);
-        require(voterSet[msg.sender].isRegistered == true);
         require(voterSet[msg.sender].isVerified == true);
         require(inProgress == true);
         candidateSet[candidateId].voteCount += 1;
