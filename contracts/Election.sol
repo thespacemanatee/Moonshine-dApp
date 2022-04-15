@@ -5,44 +5,44 @@ contract Election {
     struct ElectionInfo {
         string electionName;
         string organizationName;
-        uint256 electionId; // Can set the creation time of election as Id.
         uint256 startTime; //0 by default (Start right after a election is created)
         uint256 endTime; //0 by default (Admin can manually end the election)
         bool initialized; // Ensure the election to be initilized only once
     }
+
     struct Candidate {
         uint256 candidateId;
         string name;
         string description;
         uint256 voteCount;
     }
+
     struct Voter {
         address voterAddress;
         bool hasVoted;
-        bool isRegistered;
         bool isVerified;
     }
-    //Here are all the variables
-    address admin; //The creator of this election
+    
+    // Here are all the variables
+    address admin; // The creator of this election
     ElectionInfo electionInfo;
     mapping(uint256 => Candidate) candidateSet;
     uint256 candidateNumber;
     mapping(address => Voter) voterSet;
     address[] registeredVoters; // Array of address to store address of voters
-    bool terminated; // true will means an unrevertable termination
+    bool isTerminated; // true will means an unrevertable termination
 
-    constructor() public {
+    constructor() {
         admin = msg.sender;
         electionInfo = ElectionInfo({
             electionName: "",
             organizationName: "",
-            electionId: block.timestamp,
-            startTime: 0, //0 by default (Start right after a election is created)
-            endTime: 0, //0 by default (Admin can manually end the election)
+            startTime: 0, // 0 by default (Start right after a election is created)
+            endTime: 0, // 0 by default (Admin can manually end the election)
             initialized: false
         });
         candidateNumber = 0;
-        terminated = false;
+        isTerminated = false;
     }
 
     modifier onlyAdmin() {
@@ -50,16 +50,16 @@ contract Election {
         _;
     }
 
-    modifier uninitialized{
+    modifier uninitialized {
         require(!electionInfo.initialized);
         _;
     }
 
-    modifier stillAvailable{
-        require(!terminated);
+    modifier stillAvailable {
+        require(!isTerminated);
         if (electionInfo.startTime != 0 && electionInfo.endTime != 0){
-            if (block.timestamp > electionInfo.endTime) terminated = true;
-            else{
+            if (block.timestamp > electionInfo.endTime) isTerminated = true;
+            else {
                 if (block.timestamp > electionInfo.startTime) _;
             }
         }
@@ -67,7 +67,6 @@ contract Election {
 
     modifier canVote{
         require(voterSet[msg.sender].hasVoted == false);
-        require(voterSet[msg.sender].isRegistered == true);
         require(voterSet[msg.sender].isVerified == true);
         _;
     }
@@ -86,13 +85,12 @@ contract Election {
     function initElectionWithoutTimeConstrain(
         string memory _electionName, 
         string memory _organizationName) public 
-    onlyAdmin uninitialized{
+    onlyAdmin uninitialized {
         electionInfo = ElectionInfo({
             electionName: _electionName,
             organizationName: _organizationName,
-            electionId: electionInfo.electionId,
-            startTime: 0, //0 by default (Start right after a election is created)
-            endTime: 0, //0 by default (Admin can manually end the election)
+            startTime: 0, // 0 by default (Start right after a election is created)
+            endTime: 0, // 0 by default (Admin can manually end the election)
             initialized: true
         });
     }
@@ -101,20 +99,19 @@ contract Election {
         string memory _organizationName, 
         uint256 _startTime,
         uint256 _endTime) public 
-    onlyAdmin uninitialized{
+    onlyAdmin uninitialized {
         electionInfo = ElectionInfo({
             electionName: _electionName,
             organizationName: _organizationName,
-            electionId: electionInfo.electionId,
-            startTime: _startTime, //-1 by default (Start right after a election is created)
-            endTime: _endTime, //-1 by default (Admin can manually end the election)
+            startTime: _startTime, // -1 by default (Start right after a election is created)
+            endTime: _endTime, // -1 by default (Admin can manually end the election)
             initialized: true
         });
     }
 
     // Add new candidates
     function addCandidate(string memory _name, string memory _description) public
-    onlyAdmin stillAvailable{
+    onlyAdmin stillAvailable {
         Candidate memory newCandidate = Candidate({
             candidateId: candidateNumber,
             name: _name,
@@ -127,11 +124,10 @@ contract Election {
 
     // Register a voter
     function registerVoter() public 
-    stillAvailable{
+    stillAvailable {
         Voter memory newVoter = Voter({
             voterAddress: msg.sender,
             hasVoted: false,
-            isRegistered: true,
             isVerified: false
         });
         voterSet[msg.sender] = newVoter;
@@ -140,20 +136,20 @@ contract Election {
 
     // Verify a voter
     function verifyVoter(address voterAddress) public 
-    onlyAdmin stillAvailable{
+    onlyAdmin stillAvailable {
         voterSet[voterAddress].isVerified = true;
     }
 
     // Vote
     function vote(uint256 candidateId) public 
-    stillAvailable canVote{
+    stillAvailable canVote {
         candidateSet[candidateId].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
     }
 
     // End election
     function endElection() public 
-    onlyAdmin stillAvailable{
-        terminated = true;
+    onlyAdmin stillAvailable {
+        isTerminated = true;
     }
 }
