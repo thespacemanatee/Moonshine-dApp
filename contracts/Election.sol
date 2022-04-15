@@ -4,7 +4,6 @@ pragma solidity >=0.4.22 <0.9.0;
 contract Election {
     address admin;
     string electionName;
-    uint256 electionId;
     uint256 startTime;
     uint256 endTime;
     // string[] options;
@@ -12,21 +11,18 @@ contract Election {
     uint256 candidateCount;
     bool allowMultipleOption;
     bool stopOnTime;
-    bool start;
-    bool end;
+    bool inProgress;
 
-    constructor() public {
+    constructor() {
         admin = msg.sender;
         electionName = "";
-        electionId = 0;
         startTime = 0;
         endTime = 0;
         // options = [];
         participantCount = 0;
         allowMultipleOption = false;
         stopOnTime = true;
-        start = true;
-        end = false;
+        inProgress = false;
     }
 
     modifier onlyAdmin() {
@@ -50,14 +46,6 @@ contract Election {
 
     function setElectionName(string memory newElectionName) public onlyAdmin {
         electionName = newElectionName;
-    }
-
-    function getElectionId() public view returns (uint256) {
-        return electionId;
-    }
-
-    function setElectionId(uint256 newElectionId) public onlyAdmin {
-        electionId = newElectionId;
     }
 
     function getStartTime() public view returns (uint256) {
@@ -131,7 +119,7 @@ contract Election {
         bool isRegistered;
         bool isVerified;
     }
-    address[] public RegisteredVoters; // Array of address to store address of voters
+    address[] public registeredVoters; // Array of address to store address of voters
     mapping(address => Voter) public voterSet;
     
     //register a voter
@@ -144,7 +132,7 @@ contract Election {
                 isVerified: false
             });
         voterSet[msg.sender] = newVoter;
-        RegisteredVoters.push(msg.sender);
+        registeredVoters.push(msg.sender);
         participantCount += 1;
     }
 
@@ -158,16 +146,13 @@ contract Election {
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isRegistered == true);
         require(voterSet[msg.sender].isVerified == true);
-        require(start == true);
-        require(end == false);
+        require(inProgress == true);
         candidateSet[candidateId].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
     }
 
     // End election
     function endElection() public onlyAdmin {
-        end = true;
-        start = false;
+        inProgress = false;
     }
-
 }
