@@ -52,42 +52,42 @@ contract Election {
         return startTime;
     }
 
-    function setStartTime(uint256 NewstartTime) public onlyAdmin {
-        startTime = NewstartTime;
+    function setStartTime(uint256 newStartTime) public onlyAdmin {
+        startTime = newStartTime;
     }
 
     function getEndTime() public view returns (uint256) {
         return endTime;
     }
 
-    function setEndTime(uint256 NewendTime) public onlyAdmin {
-        endTime = NewendTime;
+    function setEndTime(uint256 newEndTime) public onlyAdmin {
+        endTime = newEndTime;
     }
 
     function getParticipantCount() public view returns (uint256) {
         return participantCount;
     }
 
-    function setParticipantCount(uint256 NewparticipantNum) public onlyAdmin {
-        participantCount = NewparticipantNum;
+    function setParticipantCount(uint256 newParticipantCount) public onlyAdmin {
+        participantCount = newParticipantCount;
     }
 
     function getAllowMultipleOption() public view returns (uint) {
         return startTime;
     }
 
-    function setAllowMultipleOption(bool NewAllowMultipleOption) public
+    function setAllowMultipleOption(bool newAllowMultipleOption) public
     onlyAdmin
     {
-        allowMultipleOption = NewAllowMultipleOption;
+        allowMultipleOption = newAllowMultipleOption;
     }
 
     function getStopOnTime() public view returns (bool) {
         return stopOnTime;
     }
 
-    function setStopOnTime(bool NewstopOnTime) public onlyAdmin {
-        stopOnTime = NewstopOnTime;
+    function setStopOnTime(bool newStopOnTime) public onlyAdmin {
+        stopOnTime = newStopOnTime;
     }
 
     struct Candidate {
@@ -141,6 +141,7 @@ contract Election {
     {
         voterSet[voterAddress].isVerified = true;
     }
+    
     // Vote
     function vote(uint256 candidateId) public {
         require(voterSet[msg.sender].hasVoted == false);
@@ -151,8 +152,14 @@ contract Election {
         voterSet[msg.sender].hasVoted = true;
     }
 
+    function startElection() public onlyAdmin {
+        require(inProgress == false);
+        inProgress = true;
+    }
+
     // End election
     function endElection() public onlyAdmin {
+        require(inProgress == true);
         inProgress = false;
     }
 }
