@@ -2,3 +2,5 @@ contracts/.placeholder
 test/.placeholder
 build
 .yarn-integrity
+.env
+node_modules

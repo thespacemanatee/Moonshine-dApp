@@ -17,11 +17,13 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
+require("dotenv").config();
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const mnemonic = process.env.MNEMONIC;
+const apiUrl = process.env.INFURA_API_URL;
 const path = require("path");
 
 module.exports = {
@@ -47,6 +49,12 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
+    },
+    ropsten: {
+      provider: function () {
+        return new HDWalletProvider(mnemonic, apiUrl);
+      },
+      network_id: 3,
     },
     // Another network with more advanced options...
     // advanced: {

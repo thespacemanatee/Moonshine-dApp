@@ -12,14 +12,14 @@ const WalletDetailsCard = () => {
 
   return (
     <Card variant="outlined">
-      <CardContent className="">
+      <CardContent>
         <Typography className="text-sm" color="text.secondary" gutterBottom>
           Wallet Details
         </Typography>
         <Typography className="sm:xl flex-shrink font-medium lg:text-2xl">
           {currentAddress}
         </Typography>
-        <Typography className="" color="text.secondary">
+        <Typography color="text.secondary">
           {`Balance: ${currentBalance} wei`}
         </Typography>
       </CardContent>
