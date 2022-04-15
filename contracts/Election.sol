@@ -25,10 +25,10 @@ contract Election {
     //Here are all the variables
     address admin; //The creator of this election
     ElectionInfo electionInfo;
-    mapping(uint256 => Candidate) public candidateSet;
+    mapping(uint256 => Candidate) candidateSet;
     uint256 candidateNumber;
-    mapping(address => Voter) public voterSet;
-    address[] public registeredVoters; // Array of address to store address of voters
+    mapping(address => Voter) voterSet;
+    address[] registeredVoters; // Array of address to store address of voters
     bool terminated; // true will means an unrevertable termination
 
     constructor() public {
