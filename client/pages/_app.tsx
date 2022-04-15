@@ -1,14 +1,26 @@
 import "../styles/globals.css";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 import type { AppProps } from "next/app";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+
 import { Web3Provider } from "@providers/Web3Provider";
-import { ResponsiveAppBar } from "components/molecules";
+import { Footer, ResponsiveAppBar } from "@components/molecules";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3Provider>
-      <ResponsiveAppBar />
-      <Component {...pageProps} />
-    </Web3Provider>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Web3Provider>
+        <div className="h-screen">
+          <ResponsiveAppBar />
+          <Component {...pageProps} />
+          <Footer />
+        </div>
+      </Web3Provider>
+    </LocalizationProvider>
   );
 }
 

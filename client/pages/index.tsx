@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 
 import { WalletDetailsCard } from "@components/ui";
-import { AdminElectionContainer } from "@components/molecules";
+import { AdminElectionContainer } from "@components/containers";
 import { useWeb3 } from "@providers/index";
 
 const Home: NextPage = () => {
@@ -12,7 +12,7 @@ const Home: NextPage = () => {
       <div className="w-4/5 min-w-fit">
         <WalletDetailsCard />
         {isAdmin ? (
-          <div className="my-4">
+          <div className="my-12">
             <AdminElectionContainer />
           </div>
         ) : (

@@ -24,38 +24,48 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [currentNetworkType, setCurrentNetworkType] = useState<string>();
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const updateAccount = async (accounts: string[], web3: Web3) => {
+    const account = accounts[0].toLowerCase();
+    const balance = await web3.eth.getBalance(account);
+    const networkType = await web3.eth.net.getNetworkType();
+    setCurrentAddress(account);
+    setCurrentBalance(balance);
+    setCurrentNetworkType(networkType);
+
+    // Get the contract instance.
+    const networkId = await web3.eth.net.getId();
+    // @ts-ignore
+    const deployedNetwork = Election.networks[networkId];
+
+    const instance = new web3.eth.Contract(
+      // @ts-ignore
+      Election.abi,
+      deployedNetwork && deployedNetwork.address
+    );
+    const adminAddress = (
+      await instance.methods.getAdmin().call()
+    ).toLowerCase();
+    setIsAdmin(adminAddress === account);
+  };
+
   useEffect(() => {
+    window.ethereum.on("accountsChanged", (accounts: string[]) => {
+      if (web3) {
+        updateAccount(accounts, web3);
+      }
+    });
     const initWeb3 = async () => {
       try {
         const res = await getWeb3();
         setWeb3(res);
-        const accounts = await res.eth.getAccounts();
-        const account = accounts[0];
-        const balance = await res.eth.getBalance(account);
-        const networkType = await res.eth.net.getNetworkType();
-        setCurrentAddress(account);
-        setCurrentBalance(balance);
-        setCurrentNetworkType(networkType);
-
-        // Get the contract instance.
-        const networkId = await res.eth.net.getId();
-        // @ts-ignore
-        const deployedNetwork = Election.networks[networkId];
-        const instance = new res.eth.Contract(
-          // @ts-ignore
-          Election.abi,
-          deployedNetwork && deployedNetwork.address
-        );
-        const adminAddress = await instance.methods.getAdmin().call();
-        console.log(adminAddress === account);
-
-        setIsAdmin(adminAddress === account);
+        const accounts = await res.eth.requestAccounts();
+        updateAccount(accounts, res);
       } catch (err) {
         console.error(err);
       }
     };
     initWeb3();
-  }, []);
+  }, [web3]);
 
   const getWeb3 = () =>
     new Promise<Web3>((resolve, reject) => {
@@ -64,7 +74,6 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         if (window.ethereum) {
           const web3 = new Web3(window.ethereum);
           try {
-            await window.ethereum.enable();
             resolve(web3);
           } catch (error) {
             reject(error);
