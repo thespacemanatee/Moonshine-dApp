@@ -129,27 +129,35 @@ contract Election {
         address voterAddress;
         bool hasVoted;
         bool isRegistered;
+        bool isVerified;
     }
     address[] public RegisteredVoters; // Array of address to store address of voters
     mapping(address => Voter) public voterSet;
     
     //register a voter
-    function registerVoter(address _voterAddress) public onlyAdmin {
+    function registerVoter() public  {
         Voter memory newVoter =
             Voter({
-                voterAddress: _voterAddress,
+                voterAddress: msg.sender,
                 hasVoted: false,
-                isRegistered: true
+                isRegistered: true,
+                isVerified: false
             });
-        voterSet[_voterAddress] = newVoter;
-        RegisteredVoters.push(_voterAddress);
+        voterSet[msg.sender] = newVoter;
+        RegisteredVoters.push(msg.sender);
         participantCount += 1;
     }
 
+    // Verify a voter
+    function verifyVoter(address voterAddress) public onlyAdmin
+    {
+        voterSet[voterAddress].isVerified = true;
+    }
     // Vote
     function vote(uint256 candidateId) public {
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isRegistered == true);
+        require(voterSet[msg.sender].isVerified == true);
         require(start == true);
         require(end == false);
         candidateSet[candidateId].voteCount += 1;
