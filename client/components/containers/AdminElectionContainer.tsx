@@ -1,23 +1,45 @@
 import React, { useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { TransactionReceipt } from "web3-core";
 import Button from "@mui/material/Button";
 import addDays from "date-fns/addDays";
 
 import { useElection } from "@providers/index";
 import { CreateElectionStepper, StepperControls } from "@components/molecules";
+import { ContractDetailsCard } from "@components/ui";
 
 const EnterElectionDetails = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [electionName, setElectionName] = useState("");
   const [organisationName, setOrganisationName] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [transactionHash, setTransactionHash] = useState("");
+  const [transactionReceipt, setTransactionReceipt] =
+    useState<TransactionReceipt>();
 
-  const { createElection } = useElection();
+  const { createElection, electionInfo } = useElection();
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     const isValid = formRef.current?.reportValidity();
     if (isValid) {
-      createElection(electionName, organisationName);
+      createElection(electionName, organisationName)
+        .once("sending", () => {
+          setIsSending(true);
+        })
+        .once("sent", () => {
+          setIsSending(false);
+        })
+        .once("transactionHash", (hash: string) => {
+          setTransactionHash(hash);
+        })
+        .then((receipt: TransactionReceipt) => {
+          console.log("Election created! Receipt:", receipt);
+          setTransactionReceipt(receipt);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   };
 
@@ -39,7 +61,16 @@ const EnterElectionDetails = () => {
           className="my-2 w-1/2 min-w-fit"
         />
       </div>
-      <Button variant="outlined" className="mt-16" onClick={handleCreate}>
+      <Button
+        variant="outlined"
+        disabled={
+          isSending ||
+          !!electionInfo?.electionName ||
+          !!electionInfo?.organisationName
+        }
+        className="mt-16"
+        onClick={handleCreate}
+      >
         Create Election
       </Button>
     </form>
@@ -120,8 +151,11 @@ const AdminElectionContainer = () => {
 
   return (
     <div className="flex flex-1 flex-col">
-      <CreateElectionStepper activeStep={activeStep} />
-      <div className="my-12 flex flex-1 flex-col">
+      <ContractDetailsCard />
+      <div className="my-12">
+        <CreateElectionStepper activeStep={activeStep} />
+      </div>
+      <div className="flex flex-1 flex-col">
         {activeStep === 0 && <EnterElectionDetails />}
         {activeStep === 1 && <AddCandidates />}
         {activeStep === 2 && (

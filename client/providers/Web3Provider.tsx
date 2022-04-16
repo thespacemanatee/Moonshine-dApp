@@ -15,6 +15,7 @@ type Web3ContextProps = {
   isLoading: boolean;
   web3?: Web3;
   contract?: Contract;
+  contractAddress?: string;
   currentAddress?: string;
   currentBalance?: string;
   currentNetworkType?: string;
@@ -31,6 +32,7 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [web3, setWeb3] = useState<Web3>();
   const [contract, setContract] = useState<Contract>();
+  const [contractAddress, setContractAddress] = useState<string>();
   const [currentAddress, setCurrentAddress] = useState<string>();
   const [currentBalance, setCurrentBalance] = useState<string>();
   const [currentNetworkType, setCurrentNetworkType] = useState<string>();
@@ -80,27 +82,29 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   );
 
   useEffect(() => {
-    if (contract) {
-      setIsLoading(true);
-      (async () => {
-        const adminAddress = (
-          await contract.methods.getAdmin().call()
-        ).toLowerCase();
-        setIsAdmin(adminAddress === currentAddress?.toLowerCase());
-      })();
-      setIsLoading(false);
+    if (!contract) {
+      return;
     }
+    setIsLoading(true);
+    (async () => {
+      const adminAddress = (
+        await contract.methods.getAdmin().call()
+      ).toLowerCase();
+      setIsAdmin(adminAddress === currentAddress?.toLowerCase());
+    })();
+    setIsLoading(false);
   }, [contract, currentAddress]);
 
   useEffect(() => {
-    if (web3) {
-      setIsLoading(true);
-      (async () => {
-        const accounts = await web3.eth.requestAccounts();
-        await updateAccount(accounts, web3);
-      })();
-      setIsLoading(false);
+    if (!web3) {
+      return;
     }
+    setIsLoading(true);
+    (async () => {
+      const accounts = await web3.eth.requestAccounts();
+      await updateAccount(accounts, web3);
+    })();
+    setIsLoading(false);
   }, [web3]);
 
   useEffect(() => {
@@ -119,6 +123,7 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         );
         setWeb3(res);
         setContract(contract);
+        setContractAddress(deployedNetwork.address);
       } catch (err) {
         console.error(err);
       }
@@ -131,6 +136,7 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
       isLoading,
       web3,
       contract,
+      contractAddress,
       currentAddress,
       currentBalance,
       currentNetworkType,
@@ -138,6 +144,7 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
     }),
     [
       contract,
+      contractAddress,
       currentAddress,
       currentBalance,
       currentNetworkType,

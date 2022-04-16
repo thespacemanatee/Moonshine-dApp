@@ -1,9 +1,21 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { PromiEvent } from "web3-core";
 
 import { useWeb3 } from "@providers/index";
+import { ElectionInfo } from "types";
 
 type ElectionContextProps = {
-  createElection: (electionName: string, organisationName: string) => void;
+  electionInfo?: ElectionInfo;
+  createElection: (
+    electionName: string,
+    organisationName: string
+  ) => PromiEvent<any>;
 };
 
 const ElectionContext = React.createContext<ElectionContextProps | null>(null);
@@ -13,42 +25,54 @@ type ElectionProviderProps = {
 };
 
 const ElectionProvider = ({ children }: ElectionProviderProps) => {
-  const { web3, contract, currentAddress } = useWeb3();
+  const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
+  const { contract, currentAddress } = useWeb3();
+
+  useEffect(() => {
+    if (contract == null) {
+      return;
+    }
+    contract.events.ElectionCreated((error: any, result: any) => {
+      const returnValues = result.returnValues;
+      console.log(error, returnValues);
+
+      if (!error) {
+        setElectionInfo({
+          electionName: returnValues[0],
+          organisationName: returnValues[1],
+        });
+      }
+    });
+  }, [contract]);
+
+  useEffect(() => {
+    if (contract == null) {
+      return;
+    }
+    (async () => {
+      const info = await contract.methods.getElectionInfo().call();
+      setElectionInfo({
+        electionName: info[0],
+        organisationName: info[1],
+      });
+    })();
+  }, [contract]);
 
   const createElection = useCallback(
     (electionName: string, organisationName: string) => {
-      contract?.methods
+      return contract?.methods
         .initElection(electionName, organisationName)
-        .send({ from: currentAddress })
-        .once("sending", console.log)
-        .once("sent", console.log)
-        .once("transactionHash", console.log)
-        .once("receipt", console.log)
-        .on(
-          "confirmation",
-          (confNumber: string, receipt: string, latestBlockHash: string) => {
-            console.log(
-              "Block Confirmation",
-              confNumber,
-              receipt,
-              latestBlockHash
-            );
-          }
-        )
-        .on("error", console.error)
-        .then((receipt: string) => {
-          // will be fired once the receipt is mined
-          console.log(`Election created! Receipt: ${receipt}`);
-        });
+        .send({ from: currentAddress }) as PromiEvent<any>;
     },
     [contract?.methods, currentAddress]
   );
 
   const contextValue = useMemo(
     () => ({
+      electionInfo,
       createElection,
     }),
-    [createElection]
+    [createElection, electionInfo]
   );
 
   return (
