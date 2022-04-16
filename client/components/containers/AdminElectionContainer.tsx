@@ -47,23 +47,21 @@ const EnterElectionDetails = () => {
   };
 
   return (
-    <form ref={formRef} className="flex w-1/2 flex-col">
-      <div className="flex flex-col">
-        <TextField
-          label="Election Name"
-          variant="outlined"
-          required
-          onChange={(e) => setElectionName(e.target.value)}
-          className="min-w-fit"
-        />
-        <TextField
-          label="Organisation Name"
-          variant="outlined"
-          required
-          onChange={(e) => setOrganisationName(e.target.value)}
-          className="mt-4 min-w-fit"
-        />
-      </div>
+    <form ref={formRef} className="flex flex-col items-center">
+      <TextField
+        label="Election Name"
+        variant="outlined"
+        required
+        onChange={(e) => setElectionName(e.target.value)}
+        className="w-1/2 min-w-fit"
+      />
+      <TextField
+        label="Organisation Name"
+        variant="outlined"
+        required
+        onChange={(e) => setOrganisationName(e.target.value)}
+        className="mt-4 w-1/2 min-w-fit"
+      />
       <Button
         variant="outlined"
         disabled={isSending || electionInfo?.isInitialized}
@@ -98,7 +96,7 @@ const AddCandidates = () => {
           setTransactionHash(hash);
         })
         .then((receipt: TransactionReceipt) => {
-          console.log("Election created! Receipt:", receipt);
+          console.log("Candidate added! Receipt:", receipt);
           setTransactionReceipt(receipt);
         })
         .catch((error) => {
@@ -112,26 +110,24 @@ const AddCandidates = () => {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <form ref={formRef}>
-        <div className="flex flex-col">
-          <TextField
-            label="Candidate Name"
-            variant="outlined"
-            required
-            onChange={(e) => setCandidateName(e.target.value)}
-            className="min-w-fit"
-          />
-          <TextField
-            label="Candidate Slogan"
-            variant="outlined"
-            required
-            onChange={(e) => setCandidateSlogan(e.target.value)}
-            className="mt-4 min-w-fit"
-          />
-        </div>
+      <form ref={formRef} className="flex flex-col">
+        <TextField
+          label="Candidate Name"
+          variant="outlined"
+          required
+          onChange={(e) => setCandidateName(e.target.value)}
+          className="min-w-fit"
+        />
+        <TextField
+          label="Candidate Slogan"
+          variant="outlined"
+          required
+          onChange={(e) => setCandidateSlogan(e.target.value)}
+          className="mt-4 min-w-fit"
+        />
         <Button
           variant="outlined"
-          className="mt-16 w-full"
+          className="mt-16"
           onClick={handleAddCandidate}
           disabled={isSending}
         >
@@ -179,7 +175,7 @@ const StartElection = () => {
         setTransactionHash(hash);
       })
       .then((receipt: TransactionReceipt) => {
-        console.log("Election created! Receipt:", receipt);
+        console.log("Election started! Receipt:", receipt);
         setTransactionReceipt(receipt);
       })
       .catch((error) => {

@@ -6,9 +6,8 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { TableData } from ".";
 
-export default function RegTableDetail({ rows }: { rows: TableData[] }) {
+export default function RegTableDetail({ rows }) {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 300 }} aria-label="simple table">
@@ -16,8 +15,6 @@ export default function RegTableDetail({ rows }: { rows: TableData[] }) {
           <TableRow>
             <TableCell>Account Addr</TableCell>
             <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Phone Number</TableCell>
-            <TableCell align="right">Registered</TableCell>
             <TableCell align="right">Verified</TableCell>
             <TableCell align="right">Voted</TableCell>
           </TableRow>
@@ -32,10 +29,6 @@ export default function RegTableDetail({ rows }: { rows: TableData[] }) {
                 {row.accountAddr}
               </TableCell>
               <TableCell align="right">{row.name}</TableCell>
-              <TableCell align="right">{row.phone}</TableCell>
-              <TableCell align="right">
-                {row.registered ? "True" : "False"}
-              </TableCell>
               <TableCell align="right">
                 {row.verified ? "True" : "False"}
               </TableCell>

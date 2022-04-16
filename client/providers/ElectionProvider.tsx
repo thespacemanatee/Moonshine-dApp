@@ -6,14 +6,20 @@ import React, {
   useState,
 } from "react";
 import { PromiEvent } from "web3-core";
+import { fromUnixTime } from "date-fns";
 
 import { useWeb3 } from "@providers/index";
-import { CandidateInfo, ElectionInfo, ElectionStatus } from "types";
-import { fromUnixTime } from "date-fns";
+import {
+  CandidateInfo,
+  ElectionInfo,
+  ElectionProgress,
+  ElectionStatus,
+} from "types";
 
 type ElectionContextProps = {
   electionInfo?: ElectionInfo;
   electionStatus?: ElectionStatus;
+  electionProgress?: ElectionProgress;
   candidates: CandidateInfo[];
   createElection: (
     electionName: string,
@@ -21,6 +27,7 @@ type ElectionContextProps = {
   ) => PromiEvent<any>;
   addCandidate: (candidateName: string, slogan: string) => PromiEvent<any>;
   startElection: (startTime: number, endTime: number) => PromiEvent<any>;
+  registerVoter: () => PromiEvent<any>;
 };
 
 const ElectionContext = React.createContext<ElectionContextProps | null>(null);
@@ -32,6 +39,7 @@ type ElectionProviderProps = {
 const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>();
+  const [electionProgress, setElectionProgress] = useState<ElectionProgress>();
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
   const { contract, currentAddress } = useWeb3();
 
@@ -53,6 +61,21 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         endTime: fromUnixTime(tempStatus[1]),
         isTerminated: tempStatus[2],
       });
+      if (!electionStatus?.startTime && !electionStatus?.endTime) {
+        return;
+      }
+      if (tempInfo[2] === false) {
+        setElectionProgress(ElectionProgress.NotCreated);
+      } else if (
+        (tempStatus[0] == 0 && tempStatus[1] == 0) ||
+        Date.now() - electionStatus.startTime.getTime() < 0
+      ) {
+        setElectionProgress(ElectionProgress.NotStarted);
+      } else if (Date.now() - electionStatus.endTime.getTime() > 0) {
+        setElectionProgress(ElectionProgress.Ended);
+      } else {
+        setElectionProgress(ElectionProgress.InProgress);
+      }
       if (tempCandidates) {
         const processed = (tempCandidates[0] as string[])?.map((_, index) => {
           const tempCandidate: CandidateInfo = {
@@ -66,7 +89,12 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         setCandidates(processed);
       }
     })();
-  }, [candidates, contract]);
+  }, [
+    candidates,
+    contract,
+    electionStatus?.endTime,
+    electionStatus?.startTime,
+  ]);
 
   const createElection = useCallback(
     (electionName: string, organisationName: string) => {
@@ -95,21 +123,31 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     [contract?.methods, currentAddress]
   );
 
+  const registerVoter = useCallback(() => {
+    return contract?.methods
+      .registerVoter()
+      .send({ from: currentAddress }) as PromiEvent<any>;
+  }, [contract?.methods, currentAddress]);
+
   const contextValue = useMemo(
     () => ({
       electionInfo,
       electionStatus,
+      electionProgress,
       candidates,
       createElection,
       addCandidate,
       startElection,
+      registerVoter,
     }),
     [
       addCandidate,
       candidates,
       createElection,
       electionInfo,
+      electionProgress,
       electionStatus,
+      registerVoter,
       startElection,
     ]
   );

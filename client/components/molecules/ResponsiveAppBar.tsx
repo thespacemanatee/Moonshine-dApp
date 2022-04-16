@@ -28,7 +28,6 @@ const adminPages: Label[] = [
 ];
 const voterPages: Label[] = [
   { text: "Election", href: "/" },
-  { text: "Registration", href: "/registration" },
   { text: "Results", href: "/results" },
 ];
 const settings = ["Profile", "Account", "Dashboard"];

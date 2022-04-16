@@ -1,40 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { format } from "date-fns";
 import Box from "@mui/material/Box";
 
 import { useElection, useWeb3 } from "@providers/index";
-import { format } from "date-fns";
-
-enum ElectionProgress {
-  NotStarted = "Not Started",
-  InProgress = "In Progress",
-  Ended = "Ended",
-}
 
 const ContractDetailsCard = () => {
-  const [electionProgress, setElectioProgress] = useState(
-    ElectionProgress.NotStarted
-  );
-
   const { contractAddress, currentNetworkType } = useWeb3();
-  const { electionInfo, electionStatus } = useElection();
-
-  useEffect(() => {
-    if (!electionStatus?.startTime && !electionStatus?.endTime) {
-      return;
-    }
-    if (Date.now() - electionStatus.startTime.getTime() < 0) {
-      setElectioProgress(ElectionProgress.NotStarted);
-    } else if (Date.now() - electionStatus.endTime.getTime() > 0) {
-      setElectioProgress(ElectionProgress.Ended);
-    } else {
-      setElectioProgress(ElectionProgress.InProgress);
-    }
-  }, [electionStatus?.endTime, electionStatus?.startTime]);
+  const { electionInfo, electionStatus, electionProgress } = useElection();
 
   return (
     <Card variant="outlined">

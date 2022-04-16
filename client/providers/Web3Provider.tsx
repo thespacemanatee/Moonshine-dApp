@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useRouter } from "next/router";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
@@ -38,6 +39,8 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [currentNetworkType, setCurrentNetworkType] = useState<string>();
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const router = useRouter();
+
   const updateAccount = async (accounts: string[], web3: Web3) => {
     setIsLoading(true);
     const account = accounts[0];
@@ -58,6 +61,7 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
             const web3 = new Web3(window.ethereum);
             window.ethereum.on("accountsChanged", (accounts: string[]) => {
               updateAccount(accounts, web3);
+              router.replace("/");
             });
             try {
               resolve(web3);

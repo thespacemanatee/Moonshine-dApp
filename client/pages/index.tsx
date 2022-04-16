@@ -1,7 +1,10 @@
 import type { NextPage } from "next";
 import Lottie from "react-lottie-player";
 
-import { AdminElectionContainer } from "@components/containers";
+import {
+  AdminElectionContainer,
+  VoterRegistrationContainer,
+} from "@components/containers";
 import { useWeb3 } from "@providers/index";
 
 import loadingAnim from "../public/loading.json";
@@ -20,13 +23,13 @@ const Home: NextPage = () => {
   return (
     <div className="flex flex-1 justify-center">
       <div className="w-4/5 min-w-fit">
-        {isAdmin ? (
-          <div className="my-12">
+        <div className="my-12">
+          {isAdmin ? (
             <AdminElectionContainer />
-          </div>
-        ) : (
-          <div>voter</div>
-        )}
+          ) : (
+            <VoterRegistrationContainer />
+          )}
+        </div>
       </div>
     </div>
   );

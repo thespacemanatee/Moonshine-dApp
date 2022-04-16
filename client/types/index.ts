@@ -10,6 +10,13 @@ export type ElectionStatus = {
   isTerminated: boolean;
 };
 
+export enum ElectionProgress {
+  NotCreated = "Not Created",
+  NotStarted = "Not Started",
+  InProgress = "In Progress",
+  Ended = "Ended",
+}
+
 export type CandidateInfo = {
   id: number;
   candidateName: string;
