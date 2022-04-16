@@ -6,12 +6,15 @@ import React, {
   useState,
 } from "react";
 import Web3 from "web3";
+import { AbiItem } from "web3-utils";
+import { Contract } from "web3-eth-contract";
 
 import Election from "../contracts/Election.json";
 
 type Web3ContextProps = {
   isLoading: boolean;
   web3?: Web3;
+  contract?: Contract;
   currentAddress?: string;
   currentBalance?: string;
   currentNetworkType?: string;
@@ -27,33 +30,21 @@ type Web3ProviderProps = {
 const Web3Provider = ({ children }: Web3ProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [web3, setWeb3] = useState<Web3>();
+  const [contract, setContract] = useState<Contract>();
   const [currentAddress, setCurrentAddress] = useState<string>();
   const [currentBalance, setCurrentBalance] = useState<string>();
   const [currentNetworkType, setCurrentNetworkType] = useState<string>();
   const [isAdmin, setIsAdmin] = useState(false);
 
   const updateAccount = async (accounts: string[], web3: Web3) => {
-    const account = accounts[0].toLowerCase();
+    setIsLoading(true);
+    const account = accounts[0];
     const balance = await web3.eth.getBalance(account);
     const networkType = await web3.eth.net.getNetworkType();
     setCurrentAddress(account);
     setCurrentBalance(balance);
     setCurrentNetworkType(networkType);
-
-    // Get the contract instance.
-    const networkId = await web3.eth.net.getId();
-    // @ts-ignore
-    const deployedNetwork = Election.networks[networkId];
-
-    const instance = new web3.eth.Contract(
-      // @ts-ignore
-      Election.abi,
-      deployedNetwork && deployedNetwork.address
-    );
-    const adminAddress = (
-      await instance.methods.getAdmin().call()
-    ).toLowerCase();
-    setIsAdmin(adminAddress === account);
+    setIsLoading(false);
   };
 
   const getWeb3 = useCallback(
@@ -62,12 +53,10 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         // Wait for loading completion to avoid race conditions with web3 injection timing.
         window.addEventListener("load", async () => {
           if (window.ethereum) {
-            window.ethereum.on("accountsChanged", (accounts: string[]) => {
-              if (web3) {
-                updateAccount(accounts, web3);
-              }
-            });
             const web3 = new Web3(window.ethereum);
+            window.ethereum.on("accountsChanged", (accounts: string[]) => {
+              updateAccount(accounts, web3);
+            });
             try {
               resolve(web3);
             } catch (error) {
@@ -91,32 +80,64 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
   );
 
   useEffect(() => {
+    if (contract) {
+      setIsLoading(true);
+      (async () => {
+        const adminAddress = (
+          await contract.methods.getAdmin().call()
+        ).toLowerCase();
+        setIsAdmin(adminAddress === currentAddress?.toLowerCase());
+      })();
+      setIsLoading(false);
+    }
+  }, [contract, currentAddress]);
+
+  useEffect(() => {
+    if (web3) {
+      setIsLoading(true);
+      (async () => {
+        const accounts = await web3.eth.requestAccounts();
+        await updateAccount(accounts, web3);
+      })();
+      setIsLoading(false);
+    }
+  }, [web3]);
+
+  useEffect(() => {
     const initWeb3 = async () => {
       try {
         setIsLoading(true);
         const res = await getWeb3();
+        // Get the contract instance.
+        const networkId = await res.eth.net.getId();
+        // @ts-ignore
+        const deployedNetwork = Election.networks[networkId];
+
+        const contract = new res.eth.Contract(
+          Election.abi as AbiItem[],
+          deployedNetwork && deployedNetwork.address
+        );
         setWeb3(res);
-        const accounts = await res.eth.requestAccounts();
-        await updateAccount(accounts, res);
+        setContract(contract);
       } catch (err) {
         console.error(err);
-      } finally {
-        setIsLoading(false);
       }
     };
     initWeb3();
-  }, [getWeb3, web3]);
+  }, [getWeb3]);
 
   const contextValue = useMemo(
     () => ({
       isLoading,
       web3,
+      contract,
       currentAddress,
       currentBalance,
       currentNetworkType,
       isAdmin,
     }),
     [
+      contract,
       currentAddress,
       currentBalance,
       currentNetworkType,

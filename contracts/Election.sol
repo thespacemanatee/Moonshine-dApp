@@ -61,8 +61,10 @@ contract Election {
     }
 
     modifier stillAvailable {
-        if (electionStatus.startTime != 0 && electionStatus.endTime != 0){
+        if (electionStatus.startTime != 0){
             require(block.timestamp > electionStatus.startTime);
+        }
+        if (electionStatus.endTime != 0) {
             if (block.timestamp > electionStatus.endTime) electionStatus.isTerminated = true;
         }
         require(!electionStatus.isTerminated);
