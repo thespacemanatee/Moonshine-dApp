@@ -11,6 +11,7 @@ import { ElectionProgress } from "types";
 import pleaseWaitAnim from "../../public/please-wait.json";
 import getReadyAnim from "../../public/get-ready.json";
 import startVotingAnim from "../../public/start-voting.json";
+import shakeHandsAnim from "../../public/shake-hands.json";
 
 const STAGES = {
   [ElectionProgress.NotCreated]: {
@@ -27,7 +28,7 @@ const STAGES = {
   },
   [ElectionProgress.Ended]: {
     title: "Election ended! Thank you for participating!",
-    animation: getReadyAnim,
+    animation: shakeHandsAnim,
   },
 };
 

@@ -1,23 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { TransactionReceipt } from "web3-core";
 
-import { useElection } from "@providers/index";
 import { ContractDetailsCard } from "@components/ui";
+import { RegTableDetails } from "@components/molecules";
+import { useElection } from "@providers/index";
 
 const AdminVerifyContainer = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const [transactionHash, setTransactionHash] = useState("");
+  const [transactionReceipt, setTransactionReceipt] =
+    useState<TransactionReceipt>();
 
-  const { electionInfo, candidates } = useElection();
+  const { voters, verifyVoter } = useElection();
 
-  useEffect(() => {
-    if (electionInfo?.isInitialized) {
-      setActiveStep(1);
-    }
-  }, [electionInfo?.isInitialized]);
+  const handleVerify = (address: string) => {
+    verifyVoter(address)
+      .once("sending", () => {
+        setIsSending(true);
+      })
+      .once("transactionHash", (hash: string) => {
+        setTransactionHash(hash);
+      })
+      .then((receipt: TransactionReceipt) => {
+        console.log("Voter verified! Receipt:", receipt);
+        setTransactionReceipt(receipt);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
 
   return (
     <div className="flex flex-1 flex-col">
       <ContractDetailsCard />
-      <div className="flex flex-1 flex-col"></div>
+      <div className="my-12">
+        <RegTableDetails
+          rows={voters}
+          onVerifyClick={handleVerify}
+          disableButtons={isSending}
+        />
+      </div>
     </div>
   );
 };

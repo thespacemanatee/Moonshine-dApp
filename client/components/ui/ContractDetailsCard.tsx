@@ -52,7 +52,7 @@ const ContractDetailsCard = () => {
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Contract Address
           </Typography>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" noWrap gutterBottom>
             {contractAddress}
           </Typography>
           <Typography className="text-sm" color="text.secondary" gutterBottom>

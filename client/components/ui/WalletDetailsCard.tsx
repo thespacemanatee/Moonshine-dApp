@@ -16,7 +16,7 @@ const WalletDetailsCard = () => {
         <Typography className="text-sm" color="text.secondary" gutterBottom>
           Wallet Details
         </Typography>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" noWrap gutterBottom>
           {currentAddress}
         </Typography>
         <Typography color="text.secondary" gutterBottom>
