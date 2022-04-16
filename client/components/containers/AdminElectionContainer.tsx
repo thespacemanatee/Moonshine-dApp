@@ -29,9 +29,6 @@ const EnterElectionDetails = () => {
         .once("sending", () => {
           setIsSending(true);
         })
-        .once("sent", () => {
-          setIsSending(false);
-        })
         .once("transactionHash", (hash: string) => {
           setTransactionHash(hash);
         })
@@ -41,6 +38,9 @@ const EnterElectionDetails = () => {
         })
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          setIsSending(false);
         });
     }
   };
@@ -95,10 +95,9 @@ const AddCandidates = () => {
     if (isValid) {
       addCandidate(candidateName, candidateSlogan)
         .once("sending", () => {
+          console.log("sending");
+
           setIsSending(true);
-        })
-        .once("sent", () => {
-          setIsSending(false);
         })
         .once("transactionHash", (hash: string) => {
           setTransactionHash(hash);
@@ -109,6 +108,9 @@ const AddCandidates = () => {
         })
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          setIsSending(false);
         });
     }
   };
