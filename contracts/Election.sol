@@ -26,6 +26,8 @@ contract Election {
         bool hasVoted;
         bool isVerified;
     }
+
+    event ElectionCreated(string electionName, string organizationName);
     
     // Here are all the variables
     address admin; // The creator of this election
@@ -97,6 +99,7 @@ contract Election {
             organizationName: _organizationName,
             initialized: true
         });
+        emit ElectionCreated(_electionName, _organizationName);
     }
 
     // Add new candidates
@@ -132,6 +135,14 @@ contract Election {
             endTime: 0,
             isTerminated: false
         });
+    }
+
+    function getElectionInfo() public view returns (string memory, string memory, bool) {
+        return (electionInfo.electionName, electionInfo.organizationName, electionInfo.initialized);
+    }
+
+    function getElectionStatus() public view returns (uint256, uint256, bool) {
+        return (electionStatus.startTime, electionStatus.endTime, electionStatus.isTerminated);
     }
 
     // Register a voter
