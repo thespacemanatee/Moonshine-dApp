@@ -22,7 +22,7 @@ const STAGES = {
     animation: getReadyAnim,
   },
   [ElectionProgress.InProgress]: {
-    title: "Election is open for voting, vote now!",
+    title: "Election is open for voting!",
     animation: startVotingAnim,
   },
   [ElectionProgress.Ended]: {

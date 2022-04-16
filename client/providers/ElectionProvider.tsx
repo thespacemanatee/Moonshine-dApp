@@ -44,6 +44,27 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
 
+  const getAndSetElectionProgress = (
+    isStarted: boolean,
+    startUnix: number,
+    endUnix: number,
+    startTime: Date,
+    endTime: Date
+  ) => {
+    if (isStarted === false) {
+      setElectionProgress(ElectionProgress.NotCreated);
+    } else if (
+      (startUnix === 0 && endUnix == 0) ||
+      Date.now() - startTime.getTime() < 0
+    ) {
+      setElectionProgress(ElectionProgress.NotStarted);
+    } else if (Date.now() - endTime.getTime() > 0) {
+      setElectionProgress(ElectionProgress.Ended);
+    } else {
+      setElectionProgress(ElectionProgress.InProgress);
+    }
+  };
+
   const { contract, currentAddress } = useWeb3();
   useEffect(() => {
     if (contract == null) {
@@ -59,28 +80,26 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         organisationName: tempInfo[1],
         isInitialized: tempInfo[2],
       });
+      const startUnix = tempStatus[0] as number;
       const startTime = fromUnixTime(tempStatus[0]);
+      const endUnix = tempStatus[1] as number;
       const endTime = fromUnixTime(tempStatus[1]);
+      const isStarted = tempStatus[2] as boolean;
+      const isTerminated = tempStatus[3] as boolean;
       setElectionStatus({
         startTime,
         endTime,
-        isStarted: tempStatus[2],
-        isTerminated: tempStatus[3],
+        isStarted,
+        isTerminated,
       });
       setIsRegistered(tempRegistered);
-
-      if (tempInfo[2] === false) {
-        setElectionProgress(ElectionProgress.NotCreated);
-      } else if (
-        (tempStatus[0] == 0 && tempStatus[1] == 0) ||
-        Date.now() - startTime.getTime() < 0
-      ) {
-        setElectionProgress(ElectionProgress.NotStarted);
-      } else if (Date.now() - endTime.getTime() > 0) {
-        setElectionProgress(ElectionProgress.Ended);
-      } else {
-        setElectionProgress(ElectionProgress.InProgress);
-      }
+      getAndSetElectionProgress(
+        isStarted,
+        startUnix,
+        endUnix,
+        startTime,
+        endTime
+      );
       if (tempCandidates) {
         const processed = (tempCandidates[0] as string[])?.map((_, index) => {
           const tempCandidate: CandidateInfo = {
@@ -125,15 +144,29 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       .ElectionStarted(() => {})
       .on("data", (result: any) => {
         const returnValues = result.returnValues;
+        const startUnix = returnValues[0] as number;
+        const startTime = fromUnixTime(startUnix);
+        const endUnix = returnValues[1] as number;
+        const endTime = fromUnixTime(endUnix);
+        const isStarted = returnValues[2] as boolean;
+        const isTerminated = returnValues[3] as boolean;
         setElectionStatus({
-          startTime: fromUnixTime(returnValues[0]),
-          endTime: fromUnixTime(returnValues[1]),
-          isStarted: returnValues[2],
-          isTerminated: returnValues[3],
+          startTime,
+          endTime,
+          isStarted,
+          isTerminated,
         });
+        getAndSetElectionProgress(
+          isStarted,
+          startUnix,
+          endUnix,
+          startTime,
+          endTime
+        );
       });
     return () => {
       electionCreatedEmitter?.removeAllListeners();
+      addCandidateEmitter?.removeAllListeners();
       electionStartedEmitter?.removeAllListeners();
     };
   }, [contract?.events]);
