@@ -37,7 +37,7 @@ const VoterRegistrationContainer = () => {
   const [transactionReceipt, setTransactionReceipt] =
     useState<TransactionReceipt>();
 
-  const { electionProgress, registerVoter } = useElection();
+  const { electionProgress, registerVoter, isRegistered } = useElection();
 
   const handleRegisterVoter = () => {
     registerVoter()
@@ -80,7 +80,8 @@ const VoterRegistrationContainer = () => {
           variant="outlined"
           disabled={
             electionProgress === ElectionProgress.NotCreated ||
-            electionProgress === ElectionProgress.Ended
+            electionProgress === ElectionProgress.Ended ||
+            isRegistered
           }
           onClick={handleRegisterVoter}
         >

@@ -15,24 +15,18 @@ const ContractDetailsCard = () => {
 
   return (
     <Card variant="outlined">
-      <CardContent className="grid grid-cols-2">
+      <CardContent className="grid grid-cols-1 md:grid-cols-2">
         <Box>
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Election Name
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {electionInfo?.electionName ? electionInfo.electionName : "N/A"}
           </Typography>
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Organization
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {electionInfo?.organisationName
               ? electionInfo.organisationName
               : "N/A"}
@@ -40,10 +34,7 @@ const ContractDetailsCard = () => {
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Start Time
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {electionStatus?.startTime
               ? format(electionStatus.startTime, "PPpp")
               : "N/A"}
@@ -51,10 +42,7 @@ const ContractDetailsCard = () => {
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             End Time
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {electionStatus?.endTime
               ? format(electionStatus.endTime, "PPpp")
               : "N/A"}
@@ -64,19 +52,13 @@ const ContractDetailsCard = () => {
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Contract Address
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {contractAddress}
           </Typography>
           <Typography className="text-sm" color="text.secondary" gutterBottom>
             Election Status
           </Typography>
-          <Typography
-            className="sm:xl flex-shrink font-medium lg:text-2xl"
-            gutterBottom
-          >
+          <Typography variant="h6" gutterBottom>
             {electionProgress}
           </Typography>
         </Box>

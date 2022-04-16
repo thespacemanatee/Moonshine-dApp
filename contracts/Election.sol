@@ -200,6 +200,10 @@ contract Election {
         registeredVoters.push(msg.sender);
     }
 
+    function getIsRegistered() public view returns (bool) {
+        return voterSet[msg.sender].isRegistered;
+    }
+
     function getAllVoters()
     public view returns (address[] memory, bool[] memory, bool[] memory, bool[] memory) {
         address[] memory voterAddress = new address[](registeredVoters.length);

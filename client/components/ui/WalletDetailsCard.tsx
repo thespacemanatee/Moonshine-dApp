@@ -16,19 +16,13 @@ const WalletDetailsCard = () => {
         <Typography className="text-sm" color="text.secondary" gutterBottom>
           Wallet Details
         </Typography>
-        <Typography
-          className="sm:xl flex-shrink font-medium lg:text-2xl"
-          gutterBottom
-        >
+        <Typography variant="h6" gutterBottom>
           {currentAddress}
         </Typography>
         <Typography color="text.secondary" gutterBottom>
           {`Balance`}
         </Typography>
-        <Typography
-          className="sm:xl flex-shrink font-medium lg:text-2xl"
-          gutterBottom
-        >
+        <Typography variant="h6" gutterBottom>
           {`${currentBalance} wei`}
         </Typography>
       </CardContent>

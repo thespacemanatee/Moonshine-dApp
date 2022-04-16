@@ -11,6 +11,7 @@ import { getUnixTime } from "date-fns";
 import { useElection } from "@providers/index";
 import { CreateElectionStepper, StepperControls } from "@components/molecules";
 import { CandidateDetailsCard, ContractDetailsCard } from "@components/ui";
+import { ElectionProgress } from "types";
 
 const EnterElectionDetails = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -65,7 +66,7 @@ const EnterElectionDetails = () => {
       <Button
         variant="outlined"
         disabled={isSending || electionInfo?.isInitialized}
-        className="mt-16"
+        className="m-4"
         onClick={handleCreate}
       >
         Create Election
@@ -104,30 +105,34 @@ const AddCandidates = () => {
         })
         .finally(() => {
           setIsSending(false);
+          setCandidateName("");
+          setCandidateSlogan("");
         });
     }
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <form ref={formRef} className="flex flex-col">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <form ref={formRef} className="flex flex-col items-center">
         <TextField
           label="Candidate Name"
           variant="outlined"
           required
+          value={candidateName}
           onChange={(e) => setCandidateName(e.target.value)}
-          className="min-w-fit"
+          className="w-full"
         />
         <TextField
           label="Candidate Slogan"
           variant="outlined"
           required
+          value={candidateSlogan}
           onChange={(e) => setCandidateSlogan(e.target.value)}
-          className="mt-4 min-w-fit"
+          className="mt-4 w-full"
         />
         <Button
           variant="outlined"
-          className="mt-16"
+          className="m-4"
           onClick={handleAddCandidate}
           disabled={isSending}
         >
@@ -161,7 +166,7 @@ const StartElection = () => {
   const [transactionReceipt, setTransactionReceipt] =
     useState<TransactionReceipt>();
 
-  const { startElection } = useElection();
+  const { startElection, electionProgress } = useElection();
 
   const handleStartElection = () => {
     if (!startDate || !endDate) {
@@ -187,8 +192,8 @@ const StartElection = () => {
   };
 
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col items-center">
+      <div className="flex w-1/2 flex-col">
         <DateTimePicker
           label="Election Start"
           value={startDate}
@@ -199,14 +204,18 @@ const StartElection = () => {
           label="Election End"
           value={endDate}
           onChange={setEndDate}
-          renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => <TextField className="mt-4" {...params} />}
         />
       </div>
       <Button
         variant="outlined"
-        className="mt-16 w-full"
+        className="m-4"
         onClick={handleStartElection}
-        disabled={isSending}
+        disabled={
+          isSending ||
+          electionProgress === ElectionProgress.InProgress ||
+          electionProgress === ElectionProgress.Ended
+        }
       >
         Start Election
       </Button>

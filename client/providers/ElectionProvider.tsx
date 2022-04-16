@@ -20,6 +20,7 @@ type ElectionContextProps = {
   electionInfo?: ElectionInfo;
   electionStatus?: ElectionStatus;
   electionProgress?: ElectionProgress;
+  isRegistered: boolean;
   candidates: CandidateInfo[];
   createElection: (
     electionName: string,
@@ -40,9 +41,10 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>();
   const [electionProgress, setElectionProgress] = useState<ElectionProgress>();
+  const [isRegistered, setIsRegistered] = useState(false);
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
-  const { contract, currentAddress } = useWeb3();
 
+  const { contract, currentAddress } = useWeb3();
   useEffect(() => {
     if (contract == null) {
       return;
@@ -51,28 +53,30 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       const tempInfo = await contract.methods.getElectionInfo().call();
       const tempStatus = await contract.methods.getElectionStatus().call();
       const tempCandidates = await contract.methods.getAllCandidates().call();
+      const tempRegistered = await contract.methods.getIsRegistered().call();
       setElectionInfo({
         electionName: tempInfo[0],
         organisationName: tempInfo[1],
         isInitialized: tempInfo[2],
       });
+      const startTime = fromUnixTime(tempStatus[0]);
+      const endTime = fromUnixTime(tempStatus[1]);
       setElectionStatus({
-        startTime: fromUnixTime(tempStatus[0]),
-        endTime: fromUnixTime(tempStatus[1]),
+        startTime,
+        endTime,
         isStarted: tempStatus[2],
         isTerminated: tempStatus[3],
       });
-      if (!electionStatus?.startTime && !electionStatus?.endTime) {
-        return;
-      }
+      setIsRegistered(tempRegistered);
+
       if (tempInfo[2] === false) {
         setElectionProgress(ElectionProgress.NotCreated);
       } else if (
         (tempStatus[0] == 0 && tempStatus[1] == 0) ||
-        Date.now() - electionStatus.startTime.getTime() < 0
+        Date.now() - startTime.getTime() < 0
       ) {
         setElectionProgress(ElectionProgress.NotStarted);
-      } else if (Date.now() - electionStatus.endTime.getTime() > 0) {
+      } else if (Date.now() - endTime.getTime() > 0) {
         setElectionProgress(ElectionProgress.Ended);
       } else {
         setElectionProgress(ElectionProgress.InProgress);
@@ -90,37 +94,49 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         setCandidates(processed);
       }
     })();
-    contract.events.ElectionCreated((error: any, result: any) => {
-      const returnValues = result.returnValues;
-      console.log(error, returnValues);
+  }, [contract]);
 
-      if (!error) {
+  useEffect(() => {
+    const electionCreatedEmitter = contract?.events
+      .ElectionCreated(() => {})
+      .on("data", (result: any) => {
+        const returnValues = result.returnValues;
         setElectionInfo({
           electionName: returnValues[0],
           organisationName: returnValues[1],
           isInitialized: returnValues[2],
         });
-      }
-    });
-    contract.events.ElectionStarted((error: any, result: any) => {
-      const returnValues = result.returnValues;
-      console.log(error, returnValues);
-
-      if (!error) {
+      });
+    const addCandidateEmitter = contract?.events
+      .CandidateAdded(() => {})
+      .on("data", (result: any) => {
+        const returnValues = result.returnValues;
+        setCandidates((candidates) => [
+          ...candidates,
+          {
+            id: returnValues[0],
+            candidateName: returnValues[1],
+            slogan: returnValues[2],
+            voteCount: returnValues[3],
+          },
+        ]);
+      });
+    const electionStartedEmitter = contract?.events
+      .ElectionStarted(() => {})
+      .on("data", (result: any) => {
+        const returnValues = result.returnValues;
         setElectionStatus({
-          startTime: returnValues[0],
-          endTime: returnValues[1],
+          startTime: fromUnixTime(returnValues[0]),
+          endTime: fromUnixTime(returnValues[1]),
           isStarted: returnValues[2],
           isTerminated: returnValues[3],
         });
-      }
-    });
-  }, [
-    candidates,
-    contract,
-    electionStatus?.endTime,
-    electionStatus?.startTime,
-  ]);
+      });
+    return () => {
+      electionCreatedEmitter?.removeAllListeners();
+      electionStartedEmitter?.removeAllListeners();
+    };
+  }, [contract?.events]);
 
   const createElection = useCallback(
     (electionName: string, organisationName: string) => {
@@ -160,6 +176,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       electionInfo,
       electionStatus,
       electionProgress,
+      isRegistered,
       candidates,
       createElection,
       addCandidate,
@@ -173,6 +190,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       electionInfo,
       electionProgress,
       electionStatus,
+      isRegistered,
       registerVoter,
       startElection,
     ]
