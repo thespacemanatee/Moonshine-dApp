@@ -38,20 +38,22 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     (async () => {
       const tempInfo = await contract.methods.getElectionInfo().call();
       const tempCandidates = await contract.methods.getAllCandidates().call();
-      const processed = (tempCandidates[0] as string[])?.map((_, index) => {
-        const tempCandidate: CandidateInfo = {
-          id: tempCandidates[0][index],
-          candidateName: tempCandidates[1][index],
-          slogan: tempCandidates[2][index],
-          voteCount: tempCandidates[3][index],
-        };
-        return tempCandidate;
-      });
-      setElectionInfo({
-        electionName: tempInfo[0],
-        organisationName: tempInfo[1],
-      });
-      setCandidates(processed);
+      if (tempCandidates) {
+        const processed = (tempCandidates[0] as string[])?.map((_, index) => {
+          const tempCandidate: CandidateInfo = {
+            id: tempCandidates[0][index],
+            candidateName: tempCandidates[1][index],
+            slogan: tempCandidates[2][index],
+            voteCount: tempCandidates[3][index],
+          };
+          return tempCandidate;
+        });
+        setElectionInfo({
+          electionName: tempInfo[0],
+          organisationName: tempInfo[1],
+        });
+        setCandidates(processed);
+      }
     })();
   }, [candidates, contract]);
 

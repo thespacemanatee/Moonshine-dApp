@@ -149,7 +149,7 @@ const AddCandidates = () => {
         </Typography>
         <motion.div layout className="max-h-80 overflow-scroll">
           {candidates.map((candidate) => (
-            <div key={candidate.id} className="mb-4">
+            <div key={candidate.id} className="px-4 py-2">
               <CandidateDetailsCard
                 candidateName={candidate.candidateName}
                 slogan={candidate.slogan}
@@ -201,14 +201,32 @@ const AdminElectionContainer = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(addDays(new Date(), 7));
+  const [isDisabled, setIsDisabled] = useState(false);
 
-  const { electionInfo } = useElection();
+  const { electionInfo, candidates } = useElection();
 
   useEffect(() => {
     if (electionInfo?.electionName) {
       setActiveStep(1);
+    } else {
     }
   }, [electionInfo?.electionName]);
+
+  useEffect(() => {
+    switch (activeStep) {
+      case 0: {
+        setIsDisabled(!electionInfo?.electionName);
+        return;
+      }
+      case 1: {
+        setIsDisabled(candidates.length < 2);
+        return;
+      }
+      default: {
+        setIsDisabled(false);
+      }
+    }
+  }, [activeStep, candidates.length, electionInfo?.electionName]);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -231,7 +249,7 @@ const AdminElectionContainer = () => {
       <StepperControls
         activeStep={activeStep}
         onActiveStepChange={setActiveStep}
-        disabled={!electionInfo?.electionName}
+        disabled={isDisabled}
       />
     </div>
   );

@@ -88,9 +88,10 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
     (async () => {
       try {
         setIsLoading(true);
+
         const adminAddress = (
           await contract.methods.getAdmin().call()
-        ).toLowerCase();
+        )?.toLowerCase();
         setIsAdmin(adminAddress === currentAddress?.toLowerCase());
       } catch (err) {
         console.error(err);
@@ -126,7 +127,6 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         const networkId = await res.eth.net.getId();
         // @ts-ignore
         const deployedNetwork = Election.networks[networkId];
-
         const contract = new res.eth.Contract(
           Election.abi as AbiItem[],
           deployedNetwork && deployedNetwork.address
