@@ -180,7 +180,7 @@ contract Election {
 
     // Register a voter
     function registerVoter() public 
-    stillAvailable {
+    stillAvailable notRegistered(msg.sender) {
         Voter memory newVoter = Voter({
             voterAddress: msg.sender,
             isRegistered: true,
