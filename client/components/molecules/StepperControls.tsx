@@ -8,11 +8,13 @@ import { ELECTION_STEPS } from "@components/molecules";
 type StepperControlsProps = {
   activeStep: number;
   onActiveStepChange: (step: number) => void;
+  disabled?: boolean;
 };
 
 const StepperControls = ({
   activeStep,
   onActiveStepChange,
+  disabled,
 }: StepperControlsProps) => {
   const handleNext = () => {
     onActiveStepChange(activeStep + 1);
@@ -49,7 +51,7 @@ const StepperControls = ({
             Back
           </Button>
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button onClick={handleNext}>
+          <Button onClick={handleNext} disabled={disabled}>
             {activeStep === ELECTION_STEPS.length - 1 ? "Finish" : "Next"}
           </Button>
         </Box>

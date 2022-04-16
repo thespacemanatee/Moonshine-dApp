@@ -85,26 +85,36 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
     if (!contract) {
       return;
     }
-    setIsLoading(true);
     (async () => {
-      const adminAddress = (
-        await contract.methods.getAdmin().call()
-      ).toLowerCase();
-      setIsAdmin(adminAddress === currentAddress?.toLowerCase());
+      try {
+        setIsLoading(true);
+        const adminAddress = (
+          await contract.methods.getAdmin().call()
+        ).toLowerCase();
+        setIsAdmin(adminAddress === currentAddress?.toLowerCase());
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
     })();
-    setIsLoading(false);
   }, [contract, currentAddress]);
 
   useEffect(() => {
     if (!web3) {
       return;
     }
-    setIsLoading(true);
     (async () => {
-      const accounts = await web3.eth.requestAccounts();
-      await updateAccount(accounts, web3);
+      try {
+        setIsLoading(true);
+        const accounts = await web3.eth.requestAccounts();
+        await updateAccount(accounts, web3);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
     })();
-    setIsLoading(false);
   }, [web3]);
 
   useEffect(() => {
@@ -126,6 +136,8 @@ const Web3Provider = ({ children }: Web3ProviderProps) => {
         setContractAddress(deployedNetwork.address);
       } catch (err) {
         console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     };
     initWeb3();

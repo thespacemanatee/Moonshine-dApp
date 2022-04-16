@@ -33,7 +33,7 @@ const ContractDetailsCard = () => {
         </Box>
         <Box>
           <Typography className="text-sm" color="text.secondary" gutterBottom>
-            Contract Details
+            Contract Address
           </Typography>
           <Typography className="sm:xl flex-shrink font-medium lg:text-2xl">
             {contractAddress}

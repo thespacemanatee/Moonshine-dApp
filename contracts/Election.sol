@@ -15,9 +15,9 @@ contract Election {
     }
 
     struct Candidate {
-        uint256 candidateId;
-        string name;
-        string description;
+        uint256 id;
+        string candidateName;
+        string slogan;
         uint256 voteCount;
     }
 
@@ -28,6 +28,8 @@ contract Election {
     }
 
     event ElectionCreated(string electionName, string organizationName);
+    
+    event CandidateAdded(uint256 id, string candidateName, string slogan, uint256 voteCount);
     
     // Here are all the variables
     address admin; // The creator of this election
@@ -103,15 +105,16 @@ contract Election {
     }
 
     // Add new candidates
-    function addCandidate(string memory _name, string memory _description) public
+    function addCandidate(string memory _candidateName, string memory _slogan) public
     onlyAdmin stillAvailable {
         Candidate memory newCandidate = Candidate({
-            candidateId: candidateNumber,
-            name: _name,
-            description: _description,
+            id: candidateNumber,
+            candidateName: _candidateName,
+            slogan: _slogan,
             voteCount: 0
         });
         candidateSet[candidateNumber] = newCandidate;
+        emit CandidateAdded(candidateNumber, _candidateName, _slogan, 0);
         candidateNumber += 1;
     }
 
@@ -145,6 +148,21 @@ contract Election {
         return (electionStatus.startTime, electionStatus.endTime, electionStatus.isTerminated);
     }
 
+    function getAllCandidates() 
+    public view returns (uint256[] memory, string[] memory, string[] memory, uint256[] memory) {
+        uint256[] memory id = new uint256[](candidateNumber);
+        string[] memory candidateName = new string[](candidateNumber);
+        string[] memory  slogan = new string[](candidateNumber);
+        uint256[] memory voteCount = new uint256[](candidateNumber);
+        for (uint i = 0; i < candidateNumber; i++) {
+            id[i] = candidateSet[i].id;
+            candidateName[i] = candidateSet[i].candidateName;
+            slogan[i] = candidateSet[i].slogan;
+            voteCount[i] = candidateSet[i].voteCount;
+        }
+        return (id, candidateName, slogan, voteCount);
+    }
+
     // Register a voter
     function registerVoter() public 
     stillAvailable {
@@ -164,9 +182,9 @@ contract Election {
     }
 
     // Vote
-    function vote(uint256 candidateId) public 
+    function vote(uint256 id) public 
     stillAvailable canVote {
-        candidateSet[candidateId].voteCount += 1;
+        candidateSet[id].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
     }
 
