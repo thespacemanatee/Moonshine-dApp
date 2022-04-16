@@ -24,8 +24,9 @@ contract Election {
 
     struct Voter {
         address voterAddress;
-        bool hasVoted;
+        bool isRegistered;
         bool isVerified;
+        bool hasVoted;
     }
 
     event ElectionCreated(string electionName, string organizationName);
@@ -68,6 +69,11 @@ contract Election {
 
     modifier notStarted {
         require(!electionStatus.isStarted);
+        _;
+    }
+
+    modifier notRegistered(address _voterAddress) {
+        require(voterSet[_voterAddress].isRegistered == false);
         _;
     }
 
@@ -157,7 +163,7 @@ contract Election {
         return (electionStatus.startTime, electionStatus.endTime, electionStatus.isTerminated);
     }
 
-    function getAllCandidates() 
+    function getAllCandidates()
     public view returns (uint256[] memory, string[] memory, string[] memory, uint256[] memory) {
         uint256[] memory id = new uint256[](candidateNumber);
         string[] memory candidateName = new string[](candidateNumber);
@@ -177,11 +183,28 @@ contract Election {
     stillAvailable {
         Voter memory newVoter = Voter({
             voterAddress: msg.sender,
-            hasVoted: false,
-            isVerified: false
+            isRegistered: true,
+            isVerified: false,
+            hasVoted: false
         });
         voterSet[msg.sender] = newVoter;
         registeredVoters.push(msg.sender);
+    }
+
+    function getAllVoters()
+    public view returns (address[] memory, bool[] memory, bool[] memory, bool[] memory) {
+        address[] memory voterAddress = new address[](registeredVoters.length);
+        bool[] memory  isVerified = new bool[](registeredVoters.length);
+        bool[] memory  isRegistered = new bool[](registeredVoters.length);
+        bool[] memory hasVoted = new bool[](registeredVoters.length);
+        for (uint i = 0; i < registeredVoters.length; i++) {
+            address add = registeredVoters[i];
+            voterAddress[i] = voterSet[add].voterAddress;
+            isRegistered[i] = voterSet[add].isRegistered;
+            isVerified[i] = voterSet[add].isVerified;
+            hasVoted[i] = voterSet[add].hasVoted;
+        }
+        return (voterAddress, isRegistered, isVerified, hasVoted);
     }
 
     // Verify a voter
