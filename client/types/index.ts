@@ -7,6 +7,7 @@ export type ElectionInfo = {
 export type ElectionStatus = {
   startTime: Date;
   endTime: Date;
+  isStarted: boolean;
   isTerminated: boolean;
 };
 

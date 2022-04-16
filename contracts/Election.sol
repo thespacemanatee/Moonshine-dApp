@@ -29,9 +29,16 @@ contract Election {
         bool hasVoted;
     }
 
-    event ElectionCreated(string electionName, string organizationName);
+    event ElectionCreated(string electionName, string organizationName, bool isInitialized);
     
     event CandidateAdded(uint256 id, string candidateName, string slogan, uint256 voteCount);
+    
+    event ElectionStarted(
+        uint256 startTime,
+        uint256 endTime,
+        bool isStarted,
+        bool isTerminated
+    );
     
     // Here are all the variables
     address admin; // The creator of this election
@@ -114,7 +121,7 @@ contract Election {
             organizationName: _organizationName,
             isInitialized: true
         });
-        emit ElectionCreated(_electionName, _organizationName);
+        emit ElectionCreated(_electionName, _organizationName, true);
     }
 
     // Add new candidates
@@ -142,6 +149,7 @@ contract Election {
             isStarted: true,
             isTerminated: false
         });
+        emit ElectionStarted(_startTime, _endTime, true, false);
     }
 
     // End election
@@ -153,14 +161,15 @@ contract Election {
             isStarted: true,
             isTerminated: false
         });
+        emit ElectionStarted(0, 0, true, false);
     }
 
     function getElectionInfo() public view returns (string memory, string memory, bool) {
         return (electionInfo.electionName, electionInfo.organizationName, electionInfo.isInitialized);
     }
 
-    function getElectionStatus() public view returns (uint256, uint256, bool) {
-        return (electionStatus.startTime, electionStatus.endTime, electionStatus.isTerminated);
+    function getElectionStatus() public view returns (uint256, uint256, bool, bool) {
+        return (electionStatus.startTime, electionStatus.endTime, electionStatus.isStarted, electionStatus.isTerminated);
     }
 
     function getAllCandidates()

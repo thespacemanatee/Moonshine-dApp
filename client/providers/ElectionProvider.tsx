@@ -59,7 +59,8 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       setElectionStatus({
         startTime: fromUnixTime(tempStatus[0]),
         endTime: fromUnixTime(tempStatus[1]),
-        isTerminated: tempStatus[2],
+        isStarted: tempStatus[2],
+        isTerminated: tempStatus[3],
       });
       if (!electionStatus?.startTime && !electionStatus?.endTime) {
         return;
@@ -89,6 +90,31 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         setCandidates(processed);
       }
     })();
+    contract.events.ElectionCreated((error: any, result: any) => {
+      const returnValues = result.returnValues;
+      console.log(error, returnValues);
+
+      if (!error) {
+        setElectionInfo({
+          electionName: returnValues[0],
+          organisationName: returnValues[1],
+          isInitialized: returnValues[2],
+        });
+      }
+    });
+    contract.events.ElectionStarted((error: any, result: any) => {
+      const returnValues = result.returnValues;
+      console.log(error, returnValues);
+
+      if (!error) {
+        setElectionStatus({
+          startTime: returnValues[0],
+          endTime: returnValues[1],
+          isStarted: returnValues[2],
+          isTerminated: returnValues[3],
+        });
+      }
+    });
   }, [
     candidates,
     contract,
