@@ -5,9 +5,13 @@ contract Election {
     struct ElectionInfo {
         string electionName;
         string organizationName;
-        uint256 startTime; //0 by default (Start right after a election is created)
-        uint256 endTime; //0 by default (Admin can manually end the election)
-        bool initialized; // Ensure the election to be initilized only once
+        bool initialized; // Ensure the election to be initialized only once
+    }
+
+    struct ElectionStatus {
+        uint256 startTime; // 0 by default (Start right after a election is created)
+        uint256 endTime; // 0 by default (Admin can manually end the election)
+        bool isTerminated; // true will means an unrevertable termination
     }
 
     struct Candidate {
@@ -26,23 +30,24 @@ contract Election {
     // Here are all the variables
     address admin; // The creator of this election
     ElectionInfo electionInfo;
+    ElectionStatus electionStatus;
     mapping(uint256 => Candidate) candidateSet;
     uint256 candidateNumber;
     mapping(address => Voter) voterSet;
     address[] registeredVoters; // Array of address to store address of voters
-    bool isTerminated; // true will means an unrevertable termination
 
     constructor() {
         admin = msg.sender;
         electionInfo = ElectionInfo({
             electionName: "",
             organizationName: "",
-            startTime: 0, // 0 by default (Start right after a election is created)
-            endTime: 0, // 0 by default (Admin can manually end the election)
             initialized: false
         });
-        candidateNumber = 0;
-        isTerminated = false;
+        electionStatus = ElectionStatus({
+            startTime: 0,
+            endTime: 0,
+            isTerminated: false
+        });
     }
 
     modifier onlyAdmin() {
@@ -56,13 +61,12 @@ contract Election {
     }
 
     modifier stillAvailable {
-        require(!isTerminated);
-        if (electionInfo.startTime != 0 && electionInfo.endTime != 0){
-            if (block.timestamp > electionInfo.endTime) isTerminated = true;
-            else {
-                if (block.timestamp > electionInfo.startTime) _;
-            }
+        if (electionStatus.startTime != 0 && electionStatus.endTime != 0){
+            require(block.timestamp > electionStatus.startTime);
+            if (block.timestamp > electionStatus.endTime) electionStatus.isTerminated = true;
         }
+        require(!electionStatus.isTerminated);
+        _;
     }
 
     modifier canVote{
@@ -82,29 +86,13 @@ contract Election {
     }
 
     // Initialize and start the election
-    function initElectionWithoutTimeConstrain(
+    function initElection(
         string memory _electionName, 
         string memory _organizationName) public 
     onlyAdmin uninitialized {
         electionInfo = ElectionInfo({
             electionName: _electionName,
             organizationName: _organizationName,
-            startTime: 0, // 0 by default (Start right after a election is created)
-            endTime: 0, // 0 by default (Admin can manually end the election)
-            initialized: true
-        });
-    }
-    function initElectionWithTimeConstrain(
-        string memory _electionName, 
-        string memory _organizationName, 
-        uint256 _startTime,
-        uint256 _endTime) public 
-    onlyAdmin uninitialized {
-        electionInfo = ElectionInfo({
-            electionName: _electionName,
-            organizationName: _organizationName,
-            startTime: _startTime, // -1 by default (Start right after a election is created)
-            endTime: _endTime, // -1 by default (Admin can manually end the election)
             initialized: true
         });
     }
@@ -120,6 +108,28 @@ contract Election {
         });
         candidateSet[candidateNumber] = newCandidate;
         candidateNumber += 1;
+    }
+
+    // End election
+    function startElection(
+        uint256 _startTime,
+        uint256 _endTime) public
+    onlyAdmin {
+        electionStatus = ElectionStatus({
+            startTime: _startTime,
+            endTime: _endTime,
+            isTerminated: false
+        });
+    }
+
+    // End election
+    function startElectionWithoutDeadline() public
+    onlyAdmin {
+        electionStatus = ElectionStatus({
+            startTime: 0,
+            endTime: 0,
+            isTerminated: false
+        });
     }
 
     // Register a voter
@@ -150,6 +160,6 @@ contract Election {
     // End election
     function endElection() public 
     onlyAdmin stillAvailable {
-        isTerminated = true;
+        electionStatus.isTerminated = true;
     }
 }
