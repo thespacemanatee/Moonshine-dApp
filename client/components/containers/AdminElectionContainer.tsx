@@ -6,11 +6,11 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { motion } from "framer-motion";
 import addDays from "date-fns/addDays";
+import { getUnixTime } from "date-fns";
 
 import { useElection } from "@providers/index";
 import { CreateElectionStepper, StepperControls } from "@components/molecules";
 import { CandidateDetailsCard, ContractDetailsCard } from "@components/ui";
-import { getUnixTime } from "date-fns";
 
 const EnterElectionDetails = () => {
   const formRef = useRef<HTMLFormElement>(null);

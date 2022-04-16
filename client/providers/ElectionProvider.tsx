@@ -8,10 +8,12 @@ import React, {
 import { PromiEvent } from "web3-core";
 
 import { useWeb3 } from "@providers/index";
-import { CandidateInfo, ElectionInfo } from "types";
+import { CandidateInfo, ElectionInfo, ElectionStatus } from "types";
+import { fromUnixTime } from "date-fns";
 
 type ElectionContextProps = {
   electionInfo?: ElectionInfo;
+  electionStatus?: ElectionStatus;
   candidates: CandidateInfo[];
   createElection: (
     electionName: string,
@@ -29,6 +31,7 @@ type ElectionProviderProps = {
 
 const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
+  const [electionStatus, setElectionStatus] = useState<ElectionStatus>();
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
   const { contract, currentAddress } = useWeb3();
 
@@ -38,7 +41,18 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     }
     (async () => {
       const tempInfo = await contract.methods.getElectionInfo().call();
+      const tempStatus = await contract.methods.getElectionStatus().call();
       const tempCandidates = await contract.methods.getAllCandidates().call();
+      setElectionInfo({
+        electionName: tempInfo[0],
+        organisationName: tempInfo[1],
+        isInitialized: tempInfo[2],
+      });
+      setElectionStatus({
+        startTime: fromUnixTime(tempStatus[0]),
+        endTime: fromUnixTime(tempStatus[1]),
+        isTerminated: tempStatus[2],
+      });
       if (tempCandidates) {
         const processed = (tempCandidates[0] as string[])?.map((_, index) => {
           const tempCandidate: CandidateInfo = {
@@ -48,11 +62,6 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
             voteCount: tempCandidates[3][index],
           };
           return tempCandidate;
-        });
-        setElectionInfo({
-          electionName: tempInfo[0],
-          organisationName: tempInfo[1],
-          isInitialized: tempInfo[2],
         });
         setCandidates(processed);
       }
@@ -89,12 +98,20 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const contextValue = useMemo(
     () => ({
       electionInfo,
+      electionStatus,
       candidates,
       createElection,
       addCandidate,
       startElection,
     }),
-    [addCandidate, candidates, createElection, electionInfo, startElection]
+    [
+      addCandidate,
+      candidates,
+      createElection,
+      electionInfo,
+      electionStatus,
+      startElection,
+    ]
   );
 
   return (

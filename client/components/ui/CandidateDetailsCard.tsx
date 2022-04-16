@@ -18,13 +18,15 @@ const CandidateDetailsCard = ({
         <Typography className="text-sm" color="text.secondary" gutterBottom>
           Candidate Name
         </Typography>
-        <Typography className="xl flex-shrink font-medium">
+        <Typography className="xl flex-shrink font-medium" gutterBottom>
           {candidateName}
         </Typography>
         <Typography className="text-sm" color="text.secondary" gutterBottom>
           Candidate Slogan
         </Typography>
-        <Typography className="xl flex-shrink font-medium">{slogan}</Typography>
+        <Typography className="xl flex-shrink font-medium" gutterBottom>
+          {slogan}
+        </Typography>
       </CardContent>
     </Card>
   );
