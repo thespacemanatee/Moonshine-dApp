@@ -52,6 +52,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         setElectionInfo({
           electionName: tempInfo[0],
           organisationName: tempInfo[1],
+          isInitialized: tempInfo[2],
         });
         setCandidates(processed);
       }

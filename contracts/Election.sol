@@ -5,12 +5,13 @@ contract Election {
     struct ElectionInfo {
         string electionName;
         string organizationName;
-        bool initialized; // Ensure the election to be initialized only once
+        bool isInitialized; // Ensure the election to be initialized only once
     }
 
     struct ElectionStatus {
         uint256 startTime; // 0 by default (Start right after a election is created)
         uint256 endTime; // 0 by default (Admin can manually end the election)
+        bool isStarted;
         bool isTerminated; // true will means an unrevertable termination
     }
 
@@ -45,22 +46,28 @@ contract Election {
         electionInfo = ElectionInfo({
             electionName: "",
             organizationName: "",
-            initialized: false
+            isInitialized: false
         });
         electionStatus = ElectionStatus({
             startTime: 0,
             endTime: 0,
+            isStarted: false,
             isTerminated: false
         });
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(msg.sender == admin);
         _;
     }
 
     modifier uninitialized {
-        require(!electionInfo.initialized);
+        require(!electionInfo.isInitialized);
+        _;
+    }
+
+    modifier notStarted {
+        require(!electionStatus.isStarted);
         _;
     }
 
@@ -75,7 +82,7 @@ contract Election {
         _;
     }
 
-    modifier canVote{
+    modifier canVote {
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isVerified == true);
         _;
@@ -99,14 +106,14 @@ contract Election {
         electionInfo = ElectionInfo({
             electionName: _electionName,
             organizationName: _organizationName,
-            initialized: true
+            isInitialized: true
         });
         emit ElectionCreated(_electionName, _organizationName);
     }
 
     // Add new candidates
     function addCandidate(string memory _candidateName, string memory _slogan) public
-    onlyAdmin stillAvailable {
+    onlyAdmin notStarted {
         Candidate memory newCandidate = Candidate({
             id: candidateNumber,
             candidateName: _candidateName,
@@ -122,26 +129,28 @@ contract Election {
     function startElection(
         uint256 _startTime,
         uint256 _endTime) public
-    onlyAdmin {
+    onlyAdmin notStarted {
         electionStatus = ElectionStatus({
             startTime: _startTime,
             endTime: _endTime,
+            isStarted: true,
             isTerminated: false
         });
     }
 
     // End election
     function startElectionWithoutDeadline() public
-    onlyAdmin {
+    onlyAdmin notStarted {
         electionStatus = ElectionStatus({
             startTime: 0,
             endTime: 0,
+            isStarted: true,
             isTerminated: false
         });
     }
 
     function getElectionInfo() public view returns (string memory, string memory, bool) {
-        return (electionInfo.electionName, electionInfo.organizationName, electionInfo.initialized);
+        return (electionInfo.electionName, electionInfo.organizationName, electionInfo.isInitialized);
     }
 
     function getElectionStatus() public view returns (uint256, uint256, bool) {

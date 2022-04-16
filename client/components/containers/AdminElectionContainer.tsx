@@ -66,11 +66,7 @@ const EnterElectionDetails = () => {
       </div>
       <Button
         variant="outlined"
-        disabled={
-          isSending ||
-          !!electionInfo?.electionName ||
-          !!electionInfo?.organisationName
-        }
+        disabled={isSending || electionInfo?.isInitialized}
         className="mt-16"
         onClick={handleCreate}
       >
@@ -229,15 +225,15 @@ const AdminElectionContainer = () => {
   const { electionInfo, candidates } = useElection();
 
   useEffect(() => {
-    if (electionInfo?.electionName) {
+    if (electionInfo?.isInitialized) {
       setActiveStep(1);
     }
-  }, [electionInfo?.electionName]);
+  }, [electionInfo?.isInitialized]);
 
   useEffect(() => {
     switch (activeStep) {
       case 0: {
-        setIsDisabled(!electionInfo?.electionName);
+        setIsDisabled(!electionInfo?.isInitialized);
         return;
       }
       case 1: {
@@ -248,7 +244,7 @@ const AdminElectionContainer = () => {
         setIsDisabled(false);
       }
     }
-  }, [activeStep, candidates.length, electionInfo?.electionName]);
+  }, [activeStep, candidates.length, electionInfo?.isInitialized]);
 
   return (
     <div className="flex flex-1 flex-col">
