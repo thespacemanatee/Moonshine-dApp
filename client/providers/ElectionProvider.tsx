@@ -18,6 +18,7 @@ type ElectionContextProps = {
     organisationName: string
   ) => PromiEvent<any>;
   addCandidate: (candidateName: string, slogan: string) => PromiEvent<any>;
+  startElection: (startTime: number, endTime: number) => PromiEvent<any>;
 };
 
 const ElectionContext = React.createContext<ElectionContextProps | null>(null);
@@ -75,14 +76,24 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     [contract?.methods, currentAddress]
   );
 
+  const startElection = useCallback(
+    (startTime: number, endTime: number) => {
+      return contract?.methods
+        .startElection(startTime, endTime)
+        .send({ from: currentAddress }) as PromiEvent<any>;
+    },
+    [contract?.methods, currentAddress]
+  );
+
   const contextValue = useMemo(
     () => ({
       electionInfo,
       candidates,
       createElection,
       addCandidate,
+      startElection,
     }),
-    [addCandidate, candidates, createElection, electionInfo]
+    [addCandidate, candidates, createElection, electionInfo, startElection]
   );
 
   return (

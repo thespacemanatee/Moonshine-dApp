@@ -10,6 +10,7 @@ import addDays from "date-fns/addDays";
 import { useElection } from "@providers/index";
 import { CreateElectionStepper, StepperControls } from "@components/molecules";
 import { CandidateDetailsCard, ContractDetailsCard } from "@components/ui";
+import { getUnixTime } from "date-fns";
 
 const EnterElectionDetails = () => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -95,8 +96,6 @@ const AddCandidates = () => {
     if (isValid) {
       addCandidate(candidateName, candidateSlogan)
         .once("sending", () => {
-          console.log("sending");
-
           setIsSending(true);
         })
         .once("transactionHash", (hash: string) => {
@@ -144,7 +143,7 @@ const AddCandidates = () => {
         </Button>
       </form>
       <div>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom className="px-4">
           {`Candidates: ${candidates.length}`}
         </Typography>
         <motion.div layout className="max-h-80 overflow-scroll">
@@ -162,45 +161,69 @@ const AddCandidates = () => {
   );
 };
 
-type StartElectionProps = {
-  startDate: Date | null;
-  endDate: Date | null;
-  onStartDateChange: (value: Date | null) => void;
-  onEndDateChange: (value: Date | null) => void;
-};
+const StartElection = () => {
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(addDays(new Date(), 7));
+  const [isSending, setIsSending] = useState(false);
+  const [transactionHash, setTransactionHash] = useState("");
+  const [transactionReceipt, setTransactionReceipt] =
+    useState<TransactionReceipt>();
 
-const StartElection = ({
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
-}: StartElectionProps) => {
+  const { startElection } = useElection();
+
+  const handleStartElection = () => {
+    if (!startDate || !endDate) {
+      return;
+    }
+    startElection(getUnixTime(startDate), getUnixTime(endDate))
+      .once("sending", () => {
+        setIsSending(true);
+      })
+      .once("transactionHash", (hash: string) => {
+        setTransactionHash(hash);
+      })
+      .then((receipt: TransactionReceipt) => {
+        console.log("Election created! Receipt:", receipt);
+        setTransactionReceipt(receipt);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
+
   return (
-    <div className="w-1/2">
-      <div className="min-w-fit">
+    <div>
+      <div className="grid grid-cols-2 gap-4">
         <DateTimePicker
           label="Election Start"
           value={startDate}
-          onChange={onStartDateChange}
+          onChange={setStartDate}
           renderInput={(params) => <TextField {...params} />}
         />
-      </div>
-      <div className="mt-4 min-w-fit">
         <DateTimePicker
           label="Election End"
           value={endDate}
-          onChange={onEndDateChange}
+          onChange={setEndDate}
           renderInput={(params) => <TextField {...params} />}
         />
       </div>
+      <Button
+        variant="outlined"
+        className="mt-16 w-full"
+        onClick={handleStartElection}
+        disabled={isSending}
+      >
+        Start Election
+      </Button>
     </div>
   );
 };
 
 const AdminElectionContainer = () => {
   const [activeStep, setActiveStep] = useState(0);
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(addDays(new Date(), 7));
   const [isDisabled, setIsDisabled] = useState(false);
 
   const { electionInfo, candidates } = useElection();
@@ -208,7 +231,6 @@ const AdminElectionContainer = () => {
   useEffect(() => {
     if (electionInfo?.electionName) {
       setActiveStep(1);
-    } else {
     }
   }, [electionInfo?.electionName]);
 
@@ -237,14 +259,7 @@ const AdminElectionContainer = () => {
       <div className="flex flex-1 flex-col">
         {activeStep === 0 && <EnterElectionDetails />}
         {activeStep === 1 && <AddCandidates />}
-        {activeStep === 2 && (
-          <StartElection
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-        )}
+        {activeStep === 2 && <StartElection />}
       </div>
       <StepperControls
         activeStep={activeStep}
