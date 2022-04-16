@@ -21,15 +21,9 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="flex flex-1 justify-center">
-      <div className="w-4/5 min-w-fit">
-        <div className="p-8">
-          {isAdmin ? (
-            <AdminElectionContainer />
-          ) : (
-            <VoterRegistrationContainer />
-          )}
-        </div>
+    <div className="flex justify-center">
+      <div className="w-4/5 min-w-fit p-8">
+        {isAdmin ? <AdminElectionContainer /> : <VoterRegistrationContainer />}
       </div>
     </div>
   );
