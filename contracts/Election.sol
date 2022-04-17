@@ -43,6 +43,8 @@ contract Election {
     event VoterRegistered(address voterAddress, bool isRegistered, bool isVerified, bool hasVoted);
     
     event VoterVerified(address voterAddress);
+    
+    event VoterVoted(address voterAddress);
 
     event ElectionEnded();
     
@@ -239,6 +241,7 @@ contract Election {
     stillAvailable canVote {
         candidateSet[id].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
+        emit VoterVoted(msg.sender);
     }
 
     // End election
