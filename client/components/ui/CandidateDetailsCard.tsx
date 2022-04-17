@@ -10,6 +10,7 @@ type CandidateDetailsCardProps = {
   candidateName: string;
   slogan: string;
   onVoteClicked?: (candidateId: number) => void;
+  disabled?: boolean;
 };
 
 const CandidateDetailsCard = ({
@@ -17,6 +18,7 @@ const CandidateDetailsCard = ({
   candidateName,
   slogan,
   onVoteClicked,
+  disabled,
 }: CandidateDetailsCardProps) => {
   return (
     <Card>
@@ -40,6 +42,7 @@ const CandidateDetailsCard = ({
             onClick={() => {
               onVoteClicked(candidateId);
             }}
+            disabled={disabled}
           >
             Vote
           </Button>

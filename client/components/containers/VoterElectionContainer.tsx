@@ -3,6 +3,7 @@ import Lottie from "react-lottie-player";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import { TransactionReceipt } from "web3-core";
 
 import { CandidateDetailsCard, ContractDetailsCard } from "@components/ui";
@@ -71,10 +72,6 @@ const VoterRegistrationContainer = () => {
       });
   };
 
-  if (!currentVoter) {
-    return null;
-  }
-
   return (
     <Box>
       <ContractDetailsCard />
@@ -92,7 +89,7 @@ const VoterRegistrationContainer = () => {
             />
           </Box>
         ) : null}
-        {!currentVoter.isRegistered && (
+        {!currentVoter?.isRegistered && (
           <Button
             variant="outlined"
             disabled={
@@ -106,12 +103,16 @@ const VoterRegistrationContainer = () => {
           </Button>
         )}
       </Box>
-      {currentVoter.isRegistered && !currentVoter.isVerified && (
-        <Typography variant="h6" gutterBottom className="my-12">
-          You have registered as a voter! Please wait for admin verification...
-        </Typography>
+      {currentVoter?.isRegistered && !currentVoter.isVerified && (
+        <Box className="flex flex-col items-center">
+          <CircularProgress />
+          <Typography variant="h6" gutterBottom className="my-12">
+            You have registered as a voter! Please wait for admin
+            verification...
+          </Typography>
+        </Box>
       )}
-      {currentVoter.isVerified && electionProgress !== ElectionProgress.Ended && (
+      {currentVoter?.isVerified && electionProgress !== ElectionProgress.Ended && (
         <Box className="flex flex-col">
           <Typography variant="h6" className="self-center" gutterBottom>
             You have been verified!
@@ -124,6 +125,7 @@ const VoterRegistrationContainer = () => {
                 candidateName={candidate.candidateName}
                 slogan={candidate.slogan}
                 onVoteClicked={handleVote}
+                disabled={currentVoter.hasVoted}
               />
             ))}
           </Box>

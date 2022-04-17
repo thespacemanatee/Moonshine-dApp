@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
+import Lottie from "react-lottie-player";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 import { CandidateResultsCard, ContractDetailsCard } from "@components/ui";
 import { useElection } from "@providers/index";
-import { CandidateInfo } from "types";
+import { CandidateInfo, ElectionProgress } from "types";
+
+import inProgressAnim from "../../public/in-progress.json";
 
 const sortedCandidates = (candidate: CandidateInfo[]) => {
   candidate.sort((n1, n2) => {
@@ -15,23 +19,35 @@ const sortedCandidates = (candidate: CandidateInfo[]) => {
 };
 
 const ResultContainer = () => {
-  const [isSending, setIsSending] = useState(false);
-  const { electionInfo, electionStatus, electionProgress, candidates } =
-    useElection();
+  const { candidates, electionProgress } = useElection();
 
   return (
     <Box>
       <ContractDetailsCard />
-      <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-        {sortedCandidates(candidates).map((candidate) => (
-          <CandidateResultsCard
-            key={candidate.id}
-            candidateName={candidate.candidateName}
-            slogan={candidate.slogan}
-            voteCount={candidate.voteCount}
+      {electionProgress === ElectionProgress.Ended ? (
+        <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+          {sortedCandidates(candidates).map((candidate) => (
+            <CandidateResultsCard
+              key={candidate.id}
+              candidateName={candidate.candidateName}
+              slogan={candidate.slogan}
+              voteCount={candidate.voteCount}
+            />
+          ))}
+        </Box>
+      ) : (
+        <Box className="my-12 flex flex-col items-center">
+          <Typography variant="h5" gutterBottom>
+            Election is in progress, please come back later!
+          </Typography>
+          <Lottie
+            loop
+            animationData={inProgressAnim}
+            play
+            className="h-64 w-64"
           />
-        ))}
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 };
