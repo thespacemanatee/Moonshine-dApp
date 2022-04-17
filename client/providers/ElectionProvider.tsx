@@ -175,16 +175,19 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     const electionCreatedEmitter = contract?.events
       .ElectionCreated(() => {})
       .on("data", (result: any) => {
+        console.log(result);
         const returnValues = result.returnValues;
         setElectionInfo({
           electionName: returnValues[0],
           organisationName: returnValues[1],
           isInitialized: returnValues[2],
         });
+        setElectionProgress(ElectionProgress.NotStarted);
       });
     const addCandidateEmitter = contract?.events
       .CandidateAdded(() => {})
       .on("data", (result: any) => {
+        console.log(result);
         const returnValues = result.returnValues;
         setCandidates((candidates) => [
           ...candidates,
@@ -199,6 +202,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     const electionStartedEmitter = contract?.events
       .ElectionStarted(() => {})
       .on("data", (result: any) => {
+        console.log(result);
         const returnValues = result.returnValues;
         const startUnix = parseInt(returnValues[0]);
         const startTime = fromUnixTime(startUnix);
@@ -224,6 +228,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     const voterRegisteredEmitter = contract?.events
       .VoterRegistered(() => {})
       .on("data", (result: any) => {
+        console.log(result);
         const returnValues = result.returnValues;
         const address = returnValues[0];
         const isRegistered = returnValues[1];
@@ -238,7 +243,6 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       .VoterVerified(() => {})
       .on("data", (result: any) => {
         console.log(result);
-
         const returnValues = result.returnValues;
         const address = returnValues[0];
         setVoters((voters) => {
@@ -252,7 +256,8 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       });
     const electionEndedEmitter = contract?.events
       .ElectionEnded(() => {})
-      .on("data", () => {
+      .on("data", (result: any) => {
+        console.log(result);
         setElectionStatus((electionStatus) => {
           if (electionStatus) {
             return {

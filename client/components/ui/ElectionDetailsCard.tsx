@@ -34,6 +34,7 @@ const ElectionDetailsCard = () => {
 
   useEffect(() => {
     if (!electionStatus || electionProgress !== ElectionProgress.InProgress) {
+      setTimeLeft("");
       return;
     }
     const interval = setInterval(() => {
@@ -65,7 +66,11 @@ const ElectionDetailsCard = () => {
         </Typography>
       </CardContent>
       <CardActions className="justify-center">
-        <Button color="error" onClick={handleEndElection} disabled={!timeLeft}>
+        <Button
+          color="error"
+          onClick={handleEndElection}
+          disabled={!timeLeft || isSending}
+        >
           End election
         </Button>
       </CardActions>
