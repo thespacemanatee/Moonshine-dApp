@@ -29,25 +29,39 @@ contract Election {
         bool hasVoted;
     }
 
-    event ElectionCreated(string electionName, string organizationName, bool isInitialized);
-    
-    event CandidateAdded(uint256 id, string candidateName, string slogan, uint256 voteCount);
-    
+    event ElectionCreated(
+        string electionName,
+        string organizationName,
+        bool isInitialized
+    );
+
+    event CandidateAdded(
+        uint256 id,
+        string candidateName,
+        string slogan,
+        uint256 voteCount
+    );
+
     event ElectionStarted(
         uint256 startTime,
         uint256 endTime,
         bool isStarted,
         bool isTerminated
     );
-    
-    event VoterRegistered(address voterAddress, bool isRegistered, bool isVerified, bool hasVoted);
-    
+
+    event VoterRegistered(
+        address voterAddress,
+        bool isRegistered,
+        bool isVerified,
+        bool hasVoted
+    );
+
     event VoterVerified(address voterAddress);
-    
+
     event VoterVoted(address voterAddress);
 
     event ElectionEnded();
-    
+
     // Here are all the variables
     address admin; // The creator of this election
     ElectionInfo electionInfo;
@@ -72,17 +86,17 @@ contract Election {
         });
     }
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(msg.sender == admin);
         _;
     }
 
-    modifier uninitialized {
+    modifier uninitialized() {
         require(!electionInfo.isInitialized);
         _;
     }
 
-    modifier notStarted {
+    modifier notStarted() {
         require(!electionStatus.isStarted);
         _;
     }
@@ -92,18 +106,19 @@ contract Election {
         _;
     }
 
-    modifier stillAvailable {
-        if (electionStatus.startTime != 0){
+    modifier stillAvailable() {
+        if (electionStatus.startTime != 0) {
             require(block.timestamp > electionStatus.startTime);
         }
         if (electionStatus.endTime != 0) {
-            if (block.timestamp > electionStatus.endTime) electionStatus.isTerminated = true;
+            if (block.timestamp > electionStatus.endTime)
+                electionStatus.isTerminated = true;
         }
         require(!electionStatus.isTerminated);
         _;
     }
 
-    modifier canVote {
+    modifier canVote() {
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isVerified == true);
         _;
@@ -113,17 +128,16 @@ contract Election {
         return admin;
     }
 
-    function setAdmin(address _admin) public 
-    onlyAdmin stillAvailable{
+    function setAdmin(address _admin) public onlyAdmin stillAvailable {
         require(_admin == address(0x0));
         admin = _admin;
     }
 
     // Initialize and start the election
     function initElection(
-        string memory _electionName, 
-        string memory _organizationName) public 
-    onlyAdmin uninitialized {
+        string memory _electionName,
+        string memory _organizationName
+    ) public onlyAdmin uninitialized {
         electionInfo = ElectionInfo({
             electionName: _electionName,
             organizationName: _organizationName,
@@ -133,8 +147,11 @@ contract Election {
     }
 
     // Add new candidates
-    function addCandidate(string memory _candidateName, string memory _slogan) public
-    onlyAdmin notStarted {
+    function addCandidate(string memory _candidateName, string memory _slogan)
+        public
+        onlyAdmin
+        notStarted
+    {
         Candidate memory newCandidate = Candidate({
             id: candidateNumber,
             candidateName: _candidateName,
@@ -147,10 +164,11 @@ contract Election {
     }
 
     // End election
-    function startElection(
-        uint256 _startTime,
-        uint256 _endTime) public
-    onlyAdmin notStarted {
+    function startElection(uint256 _startTime, uint256 _endTime)
+        public
+        onlyAdmin
+        notStarted
+    {
         electionStatus = ElectionStatus({
             startTime: _startTime,
             endTime: _endTime,
@@ -161,8 +179,7 @@ contract Election {
     }
 
     // End election
-    function startElectionWithoutDeadline() public
-    onlyAdmin notStarted {
+    function startElectionWithoutDeadline() public onlyAdmin notStarted {
         electionStatus = ElectionStatus({
             startTime: 0,
             endTime: 0,
@@ -172,21 +189,55 @@ contract Election {
         emit ElectionStarted(0, 0, true, false);
     }
 
-    function getElectionInfo() public view returns (string memory, string memory, bool) {
-        return (electionInfo.electionName, electionInfo.organizationName, electionInfo.isInitialized);
+    function getElectionInfo()
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            bool
+        )
+    {
+        return (
+            electionInfo.electionName,
+            electionInfo.organizationName,
+            electionInfo.isInitialized
+        );
     }
 
-    function getElectionStatus() public view returns (uint256, uint256, bool, bool) {
-        return (electionStatus.startTime, electionStatus.endTime, electionStatus.isStarted, electionStatus.isTerminated);
+    function getElectionStatus()
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            bool,
+            bool
+        )
+    {
+        return (
+            electionStatus.startTime,
+            electionStatus.endTime,
+            electionStatus.isStarted,
+            electionStatus.isTerminated
+        );
     }
 
     function getAllCandidates()
-    public view returns (uint256[] memory, string[] memory, string[] memory, uint256[] memory) {
+        public
+        view
+        returns (
+            uint256[] memory,
+            string[] memory,
+            string[] memory,
+            uint256[] memory
+        )
+    {
         uint256[] memory id = new uint256[](candidateNumber);
         string[] memory candidateName = new string[](candidateNumber);
-        string[] memory  slogan = new string[](candidateNumber);
+        string[] memory slogan = new string[](candidateNumber);
         uint256[] memory voteCount = new uint256[](candidateNumber);
-        for (uint i = 0; i < candidateNumber; i++) {
+        for (uint256 i = 0; i < candidateNumber; i++) {
             id[i] = candidateSet[i].id;
             candidateName[i] = candidateSet[i].candidateName;
             slogan[i] = candidateSet[i].slogan;
@@ -196,8 +247,7 @@ contract Election {
     }
 
     // Register a voter
-    function registerVoter() public 
-    stillAvailable notRegistered(msg.sender) {
+    function registerVoter() public stillAvailable notRegistered(msg.sender) {
         Voter memory newVoter = Voter({
             voterAddress: msg.sender,
             isRegistered: true,
@@ -214,12 +264,20 @@ contract Election {
     }
 
     function getAllVoters()
-    public view returns (address[] memory, bool[] memory, bool[] memory, bool[] memory) {
+        public
+        view
+        returns (
+            address[] memory,
+            bool[] memory,
+            bool[] memory,
+            bool[] memory
+        )
+    {
         address[] memory voterAddress = new address[](registeredVoters.length);
-        bool[] memory  isVerified = new bool[](registeredVoters.length);
-        bool[] memory  isRegistered = new bool[](registeredVoters.length);
+        bool[] memory isVerified = new bool[](registeredVoters.length);
+        bool[] memory isRegistered = new bool[](registeredVoters.length);
         bool[] memory hasVoted = new bool[](registeredVoters.length);
-        for (uint i = 0; i < registeredVoters.length; i++) {
+        for (uint256 i = 0; i < registeredVoters.length; i++) {
             address add = registeredVoters[i];
             voterAddress[i] = voterSet[add].voterAddress;
             isRegistered[i] = voterSet[add].isRegistered;
@@ -230,23 +288,20 @@ contract Election {
     }
 
     // Verify a voter
-    function verifyVoter(address voterAddress) public 
-    onlyAdmin stillAvailable {
+    function verifyVoter(address voterAddress) public onlyAdmin stillAvailable {
         voterSet[voterAddress].isVerified = true;
         emit VoterVerified(voterAddress);
     }
 
     // Vote
-    function vote(uint256 id) public 
-    stillAvailable canVote {
+    function vote(uint256 id) public stillAvailable canVote {
         candidateSet[id].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
         emit VoterVoted(msg.sender);
     }
 
     // End election
-    function endElection() public 
-    onlyAdmin stillAvailable {
+    function endElection() public onlyAdmin stillAvailable {
         electionStatus.isTerminated = true;
         emit ElectionEnded();
     }
