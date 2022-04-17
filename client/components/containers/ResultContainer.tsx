@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Lottie from "react-lottie-player";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { TransactionReceipt } from "web3-core";
@@ -7,10 +6,6 @@ import { TransactionReceipt } from "web3-core";
 import { CandidateResultsCard } from "@components/ui";
 import { useElection, useWeb3 } from "@providers/index";
 
-import pleaseWaitAnim from "../../public/please-wait.json";
-import getReadyAnim from "../../public/get-ready.json";
-import startVotingAnim from "../../public/start-voting.json";
-import TextField from "@mui/material/TextField";
 import { format } from "date-fns";
 import CardContent from "@mui/material/CardContent";
 import Box from "@mui/material/Box";
@@ -38,7 +33,6 @@ const ResultContainer = () => {
 
   return (
     <div>
-      if (!electionStatus.isTerminated
       <Card variant="outlined">
         <CardContent className="grid grid-cols-1 md:grid-cols-2">
           <Box>

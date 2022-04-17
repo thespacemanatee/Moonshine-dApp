@@ -10,7 +10,11 @@ import { getUnixTime } from "date-fns";
 
 import { useElection } from "@providers/index";
 import { CreateElectionStepper, StepperControls } from "@components/molecules";
-import { CandidateDetailsCard, ContractDetailsCard } from "@components/ui";
+import {
+  CandidateDetailsCard,
+  ContractDetailsCard,
+  ElectionDetailsCard,
+} from "@components/ui";
 import { ElectionProgress } from "types";
 
 const EnterElectionDetails = () => {
@@ -227,7 +231,7 @@ const AdminElectionContainer = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
 
-  const { electionInfo, candidates } = useElection();
+  const { electionInfo, electionStatus, candidates } = useElection();
 
   useEffect(() => {
     if (electionInfo?.isInitialized) {
@@ -254,10 +258,13 @@ const AdminElectionContainer = () => {
   return (
     <div className="flex flex-1 flex-col">
       <ContractDetailsCard />
+      <div className="mt-12 w-1/2 self-center">
+        <ElectionDetailsCard />
+      </div>
       <div className="my-12">
         <CreateElectionStepper activeStep={activeStep} />
       </div>
-      <div className="flex flex-1 flex-col">
+      <div>
         {activeStep === 0 && <EnterElectionDetails />}
         {activeStep === 1 && <AddCandidates />}
         {activeStep === 2 && <StartElection />}
