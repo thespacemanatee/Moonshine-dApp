@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+
 contract Election {
     struct ElectionInfo {
         string electionName;
@@ -63,15 +65,18 @@ contract Election {
     event ElectionEnded();
 
     // Here are all the variables
+    bytes32 public immutable root;
     address admin; // The creator of this election
     ElectionInfo electionInfo;
     ElectionStatus electionStatus;
     mapping(uint256 => Candidate) candidateSet;
     uint256 candidateNumber;
     mapping(address => Voter) voterSet;
+    mapping(address => bool) voted; // mapping of voters who already voted
     address[] registeredVoters; // Array of address to store address of voters
 
-    constructor() {
+    constructor(bytes32 _root) {
+        root = _root;
         admin = msg.sender;
         electionInfo = ElectionInfo({
             electionName: "",
@@ -87,39 +92,55 @@ contract Election {
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin);
+        require(msg.sender == admin, "Only admin can call this function!");
         _;
     }
 
     modifier uninitialized() {
-        require(!electionInfo.isInitialized);
+        require(
+            !electionInfo.isInitialized,
+            "Election is already initialized!"
+        );
         _;
     }
 
     modifier notStarted() {
-        require(!electionStatus.isStarted);
+        require(!electionStatus.isStarted, "Election is already started!");
         _;
     }
 
     modifier notRegistered(address _voterAddress) {
-        require(voterSet[_voterAddress].isRegistered == false);
+        require(
+            voterSet[_voterAddress].isRegistered == false,
+            "Voter is already registered!"
+        );
         _;
     }
 
     modifier stillAvailable() {
         if (electionStatus.startTime != 0) {
-            require(block.timestamp > electionStatus.startTime);
+            require(
+                block.timestamp > electionStatus.startTime,
+                "Election is not available yet!"
+            );
         }
         if (electionStatus.endTime != 0) {
             if (block.timestamp > electionStatus.endTime)
                 electionStatus.isTerminated = true;
         }
-        require(!electionStatus.isTerminated);
+        require(!electionStatus.isTerminated, "Election is already ended!");
         _;
     }
 
-    modifier canVote() {
-        require(electionStatus.isStarted);
+    modifier canVote(bytes32[] calldata _proof) {
+        bytes32 _leaf = keccak256(abi.encodePacked(msg.sender));
+        require(
+            MerkleProof.verify(_proof, root, _leaf),
+            "Incorrect merkle proof!"
+        );
+        require(!voted[msg.sender], "Already voted!");
+        voted[msg.sender] = true;
+        require(electionStatus.isStarted, "Election is not started!");
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isVerified == true);
         _;
@@ -130,7 +151,7 @@ contract Election {
     }
 
     function setAdmin(address _admin) public onlyAdmin stillAvailable {
-        require(_admin == address(0x0));
+        require(_admin == address(0x0), "Admin cannot be set to 0x0!");
         admin = _admin;
     }
 
@@ -295,7 +316,11 @@ contract Election {
     }
 
     // Vote
-    function vote(uint256 id) public stillAvailable canVote {
+    function vote(uint256 id, bytes32[] calldata _proof)
+        public
+        stillAvailable
+        canVote(_proof)
+    {
         candidateSet[id].voteCount += 1;
         voterSet[msg.sender].hasVoted = true;
         emit VoterVoted(msg.sender);
