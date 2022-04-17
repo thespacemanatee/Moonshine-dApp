@@ -6,10 +6,10 @@ import CardActions from "@mui/material/CardActions";
 import Button from "@mui/material/Button";
 
 type CandidateDetailsCardProps = {
-  candidateId: number;
+  candidateId: string;
   candidateName: string;
   slogan: string;
-  onVoteClicked?: (candidateId: number) => void;
+  onVoteClicked?: (candidateId: string) => void;
   disabled?: boolean;
 };
 

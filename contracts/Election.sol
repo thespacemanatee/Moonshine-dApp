@@ -119,6 +119,7 @@ contract Election {
     }
 
     modifier canVote() {
+        require(electionStatus.isStarted);
         require(voterSet[msg.sender].hasVoted == false);
         require(voterSet[msg.sender].isVerified == true);
         _;

@@ -30,7 +30,6 @@ const voterPages: Label[] = [
   { text: "Election", href: "/" },
   { text: "Results", href: "/results" },
 ];
-const settings = ["Profile", "Account", "Dashboard"];
 
 const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -123,7 +122,7 @@ const ResponsiveAppBar = () => {
             </Tooltip>
             <Menu
               id="menu-appbar"
-              className="mt-12"
+              className="mt-10"
               anchorEl={anchorElUser}
               anchorOrigin={{
                 vertical: "top",
@@ -137,20 +136,9 @@ const ResponsiveAppBar = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting, index) => {
-                if (index === 0) {
-                  return (
-                    <div key={setting} className="m-4">
-                      <WalletDetailsCard />
-                    </div>
-                  );
-                }
-                return (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                );
-              })}
+              <div className="m-4">
+                <WalletDetailsCard />
+              </div>
             </Menu>
           </Box>
         </Toolbar>

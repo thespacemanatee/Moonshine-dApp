@@ -32,7 +32,7 @@ type ElectionContextProps = {
   startElection: (startTime: number, endTime: number) => PromiEvent<any>;
   registerVoter: () => PromiEvent<any>;
   verifyVoter: (address: string) => PromiEvent<any>;
-  vote: (candidateId: number) => PromiEvent<any>;
+  vote: (candidateId: string) => PromiEvent<any>;
   endElection: () => PromiEvent<any>;
 };
 
@@ -83,16 +83,16 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   };
 
   const getAndSetCandidates = (candidates: any) => {
-    const ids = candidates[0] as number[];
+    const ids = candidates[0] as string[];
     const names = candidates[1] as string[];
     const slogans = candidates[2] as string[];
-    const voteCounts = candidates[3] as number[];
+    const voteCounts = candidates[3] as string[];
     const processed = ids.map((_, index) => {
       const tempCandidate: CandidateInfo = {
         id: ids[index],
         candidateName: names[index],
         slogan: slogans[index],
-        voteCount: voteCounts[index],
+        voteCount: parseInt(voteCounts[index], 10),
       };
       return tempCandidate;
     });
@@ -183,15 +183,24 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       .on("data", (result: any) => {
         console.log(result);
         const returnValues = result.returnValues;
-        setCandidates((candidates) => [
-          ...candidates,
-          {
-            id: returnValues[0],
-            candidateName: returnValues[1],
-            slogan: returnValues[2],
-            voteCount: returnValues[3],
-          },
-        ]);
+        const id = returnValues[0] as string;
+        const candidateName = returnValues[1] as string;
+        const slogan = returnValues[2] as string;
+        const voteCount = parseInt(returnValues[3], 10);
+        setCandidates((candidates) => {
+          if (candidates.findIndex((candidate) => candidate.id === id) !== -1) {
+            return candidates;
+          }
+          return [
+            ...candidates,
+            {
+              id,
+              candidateName,
+              slogan,
+              voteCount,
+            },
+          ];
+        });
       });
     const electionStartedEmitter = contract?.events
       .ElectionStarted(() => {})
@@ -228,10 +237,12 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         const isRegistered = returnValues[1];
         const isVerified = returnValues[2];
         const hasVoted = returnValues[3];
-        setVoters((voters) => [
-          ...voters,
-          { address, isRegistered, isVerified, hasVoted },
-        ]);
+        setVoters((voters) => {
+          if (voters.findIndex((voter) => voter.address === address) !== -1) {
+            return voters;
+          }
+          return [...voters, { address, isRegistered, isVerified, hasVoted }];
+        });
       });
     const voterVerifiedEmitter = contract?.events
       .VoterVerified(() => {})
@@ -333,7 +344,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   );
 
   const vote = useCallback(
-    (candidateId: number) => {
+    (candidateId: string) => {
       return contract?.methods
         .vote(candidateId)
         .send({ from: currentAddress }) as PromiEvent<any>;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Lottie from "react-lottie-player";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -20,11 +20,15 @@ const sortedCandidates = (candidate: CandidateInfo[]) => {
 
 const ResultContainer = () => {
   const { candidates, electionProgress } = useElection();
+  const totalVotes = useMemo(
+    () => candidates.reduce((prev, { voteCount }) => prev + voteCount, 0),
+    [candidates]
+  );
 
   return (
     <Box>
       <ContractDetailsCard />
-      {electionProgress === ElectionProgress.Ended && (
+      {electionProgress === ElectionProgress.Ended ? (
         <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
           {sortedCandidates(candidates).map((candidate) => (
             <CandidateResultsCard
@@ -32,23 +36,25 @@ const ResultContainer = () => {
               candidateName={candidate.candidateName}
               slogan={candidate.slogan}
               voteCount={candidate.voteCount}
+              totalVotes={totalVotes}
             />
           ))}
         </Box>
+      ) : (
+        <Box className="my-12 flex flex-col items-center">
+          <Typography variant="h5" gutterBottom>
+            {electionProgress === ElectionProgress.InProgress
+              ? "Election is in progress, please come back later!"
+              : "Election has not been created/started!"}
+          </Typography>
+          <Lottie
+            loop
+            animationData={inProgressAnim}
+            play
+            className="h-64 w-64"
+          />
+        </Box>
       )}
-      <Box className="my-12 flex flex-col items-center">
-        <Typography variant="h5" gutterBottom>
-          {electionProgress === ElectionProgress.InProgress
-            ? "Election is in progress, please come back later!"
-            : "Election has not been created/started!"}
-        </Typography>
-        <Lottie
-          loop
-          animationData={inProgressAnim}
-          play
-          className="h-64 w-64"
-        />
-      </Box>
     </Box>
   );
 };

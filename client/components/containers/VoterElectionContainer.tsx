@@ -56,7 +56,7 @@ const VoterRegistrationContainer = () => {
       });
   };
 
-  const handleVote = (candidateId: number) => {
+  const handleVote = (candidateId: string) => {
     vote(candidateId)
       .once("sending", () => {
         setIsSending(true);
@@ -117,18 +117,20 @@ const VoterRegistrationContainer = () => {
           <Typography variant="h6" className="self-center" gutterBottom>
             You have been verified!
           </Typography>
-          <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-            {candidates.map((candidate) => (
-              <CandidateDetailsCard
-                key={candidate.id}
-                candidateId={candidate.id}
-                candidateName={candidate.candidateName}
-                slogan={candidate.slogan}
-                onVoteClicked={handleVote}
-                disabled={currentVoter.hasVoted}
-              />
-            ))}
-          </Box>
+          {electionProgress === ElectionProgress.InProgress && (
+            <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {candidates.map((candidate) => (
+                <CandidateDetailsCard
+                  key={candidate.id}
+                  candidateId={candidate.id}
+                  candidateName={candidate.candidateName}
+                  slogan={candidate.slogan}
+                  onVoteClicked={handleVote}
+                  disabled={currentVoter.hasVoted}
+                />
+              ))}
+            </Box>
+          )}
         </Box>
       )}
     </Box>

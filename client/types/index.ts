@@ -19,7 +19,7 @@ export enum ElectionProgress {
 }
 
 export type CandidateInfo = {
-  id: number;
+  id: string;
   candidateName: string;
   slogan: string;
   voteCount: number;
