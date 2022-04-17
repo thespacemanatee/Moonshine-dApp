@@ -238,7 +238,7 @@ const AdminElectionContainer = () => {
   return (
     <div className="flex flex-1 flex-col">
       <ContractDetailsCard />
-      <div className="min-w-1/2 mt-12 self-center">
+      <div className="mt-12 w-1/2 min-w-fit self-center">
         <ElectionDetailsCard />
       </div>
       <div className="my-12">

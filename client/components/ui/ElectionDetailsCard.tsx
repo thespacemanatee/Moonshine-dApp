@@ -57,11 +57,15 @@ const ElectionDetailsCard = () => {
 
   return (
     <Card>
-      <CardContent>
-        <Typography className="text-sm" color="text.secondary" gutterBottom>
+      <CardContent className="flex flex-col">
+        <Typography
+          className="self-center text-sm"
+          color="text.secondary"
+          gutterBottom
+        >
           Time Left
         </Typography>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" className="self-center" gutterBottom>
           {timeLeft ? timeLeft : "No election in progress!"}
         </Typography>
       </CardContent>
