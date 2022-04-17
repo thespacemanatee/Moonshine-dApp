@@ -10,7 +10,7 @@ import { fromUnixTime } from "date-fns";
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
 
-import { ELIGIBLE_ADDRESSES } from "../../mock";
+const { ELIGIBLE_ADDRESSES } = require("../../mock/index.ts");
 
 import { useWeb3 } from "@providers/index";
 import {
@@ -46,7 +46,9 @@ type ElectionProviderProps = {
   children: React.ReactNode;
 };
 
-const leafNodes = ELIGIBLE_ADDRESSES.map((address) => keccak256(address));
+const leafNodes = ELIGIBLE_ADDRESSES.map((address: string) =>
+  keccak256(address)
+);
 const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
 
 const ElectionProvider = ({ children }: ElectionProviderProps) => {

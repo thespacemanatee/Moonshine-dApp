@@ -51,7 +51,7 @@ const CandidateResultsCard = ({
         <CircularProgressbar
           className="h-48 w-48"
           value={percentage}
-          text={`${percentage}%`}
+          text={`${Math.round(percentage)}%`}
           styles={buildStyles({
             rotation: 0.25,
             strokeLinecap: "butt",
