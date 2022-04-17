@@ -7,6 +7,10 @@ import React, {
 } from "react";
 import { PromiEvent } from "web3-core";
 import { fromUnixTime } from "date-fns";
+import { MerkleTree } from "merkletreejs";
+import keccak256 from "keccak256";
+
+const { ELIGIBLE_ADDRESSES } = require("../../mock/index.ts");
 
 import { useWeb3 } from "@providers/index";
 import {
@@ -41,6 +45,11 @@ const ElectionContext = React.createContext<ElectionContextProps | null>(null);
 type ElectionProviderProps = {
   children: React.ReactNode;
 };
+
+const leafNodes = ELIGIBLE_ADDRESSES.map((address: string) =>
+  keccak256(address)
+);
+const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
 
 const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
@@ -111,10 +120,13 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       return;
     }
     (async () => {
-      const tempInfo = await contract.methods.getElectionInfo().call();
-      const tempStatus = await contract.methods.getElectionStatus().call();
-      const tempCandidates = await contract.methods.getAllCandidates().call();
-      const tempVoters = await contract.methods.getAllVoters().call();
+      const [tempInfo, tempStatus, tempCandidates, tempVoters] =
+        await Promise.all([
+          await contract.methods.getElectionInfo().call(),
+          await contract.methods.getElectionStatus().call(),
+          await contract.methods.getAllCandidates().call(),
+          await contract.methods.getAllVoters().call(),
+        ]);
       const electionName = tempInfo[0];
       const organisationName = tempInfo[1];
       const isInitialized = tempInfo[2];
@@ -345,8 +357,9 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
 
   const vote = useCallback(
     (candidateId: string) => {
+      const proof = merkleTree.getHexProof(keccak256(currentAddress ?? ""));
       return contract?.methods
-        .vote(candidateId)
+        .vote(candidateId, proof)
         .send({ from: currentAddress }) as PromiEvent<any>;
     },
     [contract?.methods, currentAddress]
