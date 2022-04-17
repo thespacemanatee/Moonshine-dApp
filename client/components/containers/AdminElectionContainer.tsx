@@ -22,9 +22,6 @@ const EnterElectionDetails = () => {
   const [electionName, setElectionName] = useState("");
   const [organisationName, setOrganisationName] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
-  const [transactionReceipt, setTransactionReceipt] =
-    useState<TransactionReceipt>();
 
   const { createElection, electionInfo } = useElection();
 
@@ -35,12 +32,8 @@ const EnterElectionDetails = () => {
         .once("sending", () => {
           setIsSending(true);
         })
-        .once("transactionHash", (hash: string) => {
-          setTransactionHash(hash);
-        })
         .then((receipt: TransactionReceipt) => {
           console.log("Election created! Receipt:", receipt);
-          setTransactionReceipt(receipt);
         })
         .catch((error) => {
           console.error(error);
@@ -84,9 +77,6 @@ const AddCandidates = () => {
   const [candidateName, setCandidateName] = useState("");
   const [candidateSlogan, setCandidateSlogan] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
-  const [transactionReceipt, setTransactionReceipt] =
-    useState<TransactionReceipt>();
 
   const { addCandidate, candidates } = useElection();
 
@@ -97,12 +87,8 @@ const AddCandidates = () => {
         .once("sending", () => {
           setIsSending(true);
         })
-        .once("transactionHash", (hash: string) => {
-          setTransactionHash(hash);
-        })
         .then((receipt: TransactionReceipt) => {
           console.log("Candidate added! Receipt:", receipt);
-          setTransactionReceipt(receipt);
         })
         .catch((error) => {
           console.error(error);
@@ -151,6 +137,7 @@ const AddCandidates = () => {
           {candidates.map((candidate) => (
             <div key={candidate.id} className="px-4 py-2">
               <CandidateDetailsCard
+                candidateId={candidate.id}
                 candidateName={candidate.candidateName}
                 slogan={candidate.slogan}
               />
@@ -166,9 +153,6 @@ const StartElection = () => {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(addDays(new Date(), 7));
   const [isSending, setIsSending] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
-  const [transactionReceipt, setTransactionReceipt] =
-    useState<TransactionReceipt>();
 
   const { startElection, electionProgress } = useElection();
 
@@ -180,12 +164,8 @@ const StartElection = () => {
       .once("sending", () => {
         setIsSending(true);
       })
-      .once("transactionHash", (hash: string) => {
-        setTransactionHash(hash);
-      })
       .then((receipt: TransactionReceipt) => {
         console.log("Election started! Receipt:", receipt);
-        setTransactionReceipt(receipt);
       })
       .catch((error) => {
         console.error(error);

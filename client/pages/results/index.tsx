@@ -11,17 +11,15 @@ const Results: NextPage = () => {
     useElection();
 
   return (
-    <div className="flex flex-1 justify-center">
-      <div className="w-4/5 min-w-fit">
-        <div className="my-12">
-          {electionProgress === "Ended" ? (
-            <ResultContainer />
-          ) : (
-            <Typography className="text-lg" color="text.primary" gutterBottom>
-              This event is still ongoing, please check it again after it ends!
-            </Typography>
-          )}
-        </div>
+    <div className="flex justify-center">
+      <div className="w-4/5 min-w-fit p-8">
+        {electionProgress === "Ended" ? (
+          <ResultContainer />
+        ) : (
+          <Typography className="text-lg" color="text.primary" gutterBottom>
+            This event is still ongoing, please check it again after it ends!
+          </Typography>
+        )}
       </div>
     </div>
   );

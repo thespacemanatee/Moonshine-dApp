@@ -36,14 +36,8 @@ const STAGES = {
 const VoterRegistrationContainer = () => {
   const [isSending, setIsSending] = useState(false);
 
-  const {
-    electionProgress,
-    candidates,
-    registerVoter,
-    vote,
-    isRegistered,
-    isVerified,
-  } = useElection();
+  const { electionProgress, currentVoter, candidates, registerVoter, vote } =
+    useElection();
 
   const handleRegisterVoter = () => {
     registerVoter()
@@ -77,12 +71,16 @@ const VoterRegistrationContainer = () => {
       });
   };
 
+  if (!currentVoter) {
+    return null;
+  }
+
   return (
-    <div>
+    <Box>
       <ContractDetailsCard />
-      <div className="my-12 flex flex-col items-center justify-center">
+      <Box className="my-12 flex flex-col items-center">
         {electionProgress ? (
-          <div className="flex flex-col items-center">
+          <Box className="flex flex-col items-center">
             <Typography variant="h5" gutterBottom>
               {STAGES[electionProgress].title}
             </Typography>
@@ -92,9 +90,9 @@ const VoterRegistrationContainer = () => {
               play
               className="h-64 w-64"
             />
-          </div>
+          </Box>
         ) : null}
-        {!isRegistered && (
+        {!currentVoter.isRegistered && (
           <Button
             variant="outlined"
             disabled={
@@ -107,39 +105,31 @@ const VoterRegistrationContainer = () => {
             Register
           </Button>
         )}
-        {isRegistered && !isVerified && (
-          <Typography variant="h6" gutterBottom>
-            You have registered as a voter! Please wait for admin
-            verification...
+      </Box>
+      {currentVoter.isRegistered && !currentVoter.isVerified && (
+        <Typography variant="h6" gutterBottom className="my-12">
+          You have registered as a voter! Please wait for admin verification...
+        </Typography>
+      )}
+      {currentVoter.isVerified && electionProgress !== ElectionProgress.Ended && (
+        <Box className="flex flex-col">
+          <Typography variant="h6" className="self-center" gutterBottom>
+            You have been verified!
           </Typography>
-        )}
-        {isVerified && electionProgress !== ElectionProgress.Ended && (
-          <div className="flex flex-col items-center">
-            <Typography variant="h6" gutterBottom>
-              You have been verified!
-            </Typography>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              {candidates.map((candidate) => (
-                <Box key={candidate.id} className="flex flex-col items-center">
-                  <CandidateDetailsCard
-                    candidateName={candidate.candidateName}
-                    slogan={candidate.slogan}
-                  />
-                  <Button
-                    className="mt-4"
-                    onClick={() => {
-                      handleVote(candidate.id);
-                    }}
-                  >
-                    Vote
-                  </Button>
-                </Box>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+          <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {candidates.map((candidate) => (
+              <CandidateDetailsCard
+                key={candidate.id}
+                candidateId={candidate.id}
+                candidateName={candidate.candidateName}
+                slogan={candidate.slogan}
+                onVoteClicked={handleVote}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 };
 

@@ -21,8 +21,7 @@ type ElectionContextProps = {
   electionInfo?: ElectionInfo;
   electionStatus?: ElectionStatus;
   electionProgress?: ElectionProgress;
-  isRegistered: boolean;
-  isVerified: boolean;
+  currentVoter?: VoterInfo;
   candidates: CandidateInfo[];
   voters: VoterInfo[];
   createElection: (
@@ -47,8 +46,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionInfo, setElectionInfo] = useState<ElectionInfo>();
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>();
   const [electionProgress, setElectionProgress] = useState<ElectionProgress>();
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [currentVoter, setCurrentVoter] = useState<VoterInfo>();
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
   const [voters, setVoters] = useState<VoterInfo[]>([]);
 
@@ -102,17 +100,10 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   };
 
   useEffect(() => {
-    const currentVoter = voters.find(
+    const voter = voters.find(
       (voter) => voter.address.toLowerCase() === currentAddress?.toLowerCase()
     );
-
-    if (currentVoter) {
-      setIsRegistered(true);
-      setIsVerified(currentVoter.isVerified);
-    } else {
-      setIsRegistered(false);
-      setIsVerified(false);
-    }
+    setCurrentVoter(voter);
   }, [currentAddress, voters]);
 
   useEffect(() => {
@@ -123,7 +114,6 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       const tempInfo = await contract.methods.getElectionInfo().call();
       const tempStatus = await contract.methods.getElectionStatus().call();
       const tempCandidates = await contract.methods.getAllCandidates().call();
-      const tempRegistered = await contract.methods.getIsRegistered().call();
       const tempVoters = await contract.methods.getAllVoters().call();
       const electionName = tempInfo[0];
       const organisationName = tempInfo[1];
@@ -145,7 +135,6 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         isStarted,
         isTerminated,
       });
-      setIsRegistered(tempRegistered);
       getAndSetElectionProgress(
         isInitialized,
         isTerminated,
@@ -299,7 +288,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       voterVotedEmitter?.removeAllListeners("data");
       electionEndedEmitter?.removeAllListeners("data");
     };
-  }, [contract?.events]);
+  }, [contract?.events, contract?.methods]);
 
   const createElection = useCallback(
     (electionName: string, organisationName: string) => {
@@ -363,8 +352,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       electionInfo,
       electionStatus,
       electionProgress,
-      isRegistered,
-      isVerified,
+      currentVoter,
       candidates,
       voters,
       createElection,
@@ -379,12 +367,11 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       addCandidate,
       candidates,
       createElection,
+      currentVoter,
       electionInfo,
       electionProgress,
       electionStatus,
       endElection,
-      isRegistered,
-      isVerified,
       registerVoter,
       startElection,
       verifyVoter,
