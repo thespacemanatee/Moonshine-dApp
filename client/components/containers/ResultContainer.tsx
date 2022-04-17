@@ -24,7 +24,7 @@ const ResultContainer = () => {
   return (
     <Box>
       <ContractDetailsCard />
-      {electionProgress === ElectionProgress.Ended ? (
+      {electionProgress === ElectionProgress.Ended && (
         <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
           {sortedCandidates(candidates).map((candidate) => (
             <CandidateResultsCard
@@ -35,19 +35,20 @@ const ResultContainer = () => {
             />
           ))}
         </Box>
-      ) : (
-        <Box className="my-12 flex flex-col items-center">
-          <Typography variant="h5" gutterBottom>
-            Election is in progress, please come back later!
-          </Typography>
-          <Lottie
-            loop
-            animationData={inProgressAnim}
-            play
-            className="h-64 w-64"
-          />
-        </Box>
       )}
+      <Box className="my-12 flex flex-col items-center">
+        <Typography variant="h5" gutterBottom>
+          {electionProgress === ElectionProgress.InProgress
+            ? "Election is in progress, please come back later!"
+            : "Election has not been created/started!"}
+        </Typography>
+        <Lottie
+          loop
+          animationData={inProgressAnim}
+          play
+          className="h-64 w-64"
+        />
+      </Box>
     </Box>
   );
 };

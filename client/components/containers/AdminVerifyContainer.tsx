@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import Lottie from "react-lottie-player";
 import { TransactionReceipt } from "web3-core";
 
 import { ContractDetailsCard } from "@components/ui";
 import { RegTableDetails } from "@components/molecules";
 import { useElection } from "@providers/index";
+
+import emptyAnim from "../../public/empty.json";
 
 const AdminVerifyContainer = () => {
   const [isSending, setIsSending] = useState(false);
@@ -36,12 +39,15 @@ const AdminVerifyContainer = () => {
   return (
     <div className="flex flex-1 flex-col">
       <ContractDetailsCard />
-      <div className="my-12">
+      <div className="my-12 flex flex-col items-center">
         <RegTableDetails
           rows={voters}
           onVerifyClick={handleVerify}
           disableButtons={isSending}
         />
+        {voters.length === 0 && (
+          <Lottie loop animationData={emptyAnim} play className="h-64 w-64" />
+        )}
       </div>
     </div>
   );
