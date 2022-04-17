@@ -4,20 +4,42 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardActions from "@mui/material/CardActions";
 import Button from "@mui/material/Button";
+import { TransactionReceipt } from "web3-core";
 import { formatDuration, intervalToDuration } from "date-fns";
 
 import { useElection } from "@providers/index";
+import { ElectionProgress } from "types";
 
 const ElectionDetailsCard = () => {
   const [timeLeft, setTimeLeft] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const { electionStatus } = useElection();
+  const { electionStatus, electionProgress, endElection } = useElection();
+
+  const handleEndElection = () => {
+    endElection()
+      .once("sending", () => {
+        setIsSending(true);
+      })
+      .then((receipt: TransactionReceipt) => {
+        console.log("Election ended! Receipt:", receipt);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
 
   useEffect(() => {
+    if (!electionStatus || electionProgress !== ElectionProgress.InProgress) {
+      return;
+    }
     const interval = setInterval(() => {
       let duration = intervalToDuration({
         start: new Date(),
-        end: electionStatus?.endTime ?? new Date(),
+        end: electionStatus.endTime,
       });
 
       setTimeLeft(
@@ -30,7 +52,7 @@ const ElectionDetailsCard = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [electionStatus?.endTime]);
+  }, [electionProgress, electionStatus, electionStatus?.endTime]);
 
   return (
     <Card>
@@ -39,13 +61,11 @@ const ElectionDetailsCard = () => {
           Time Left
         </Typography>
         <Typography variant="h6" gutterBottom>
-          {electionStatus && electionStatus?.startTime.getTime() < Date.now()
-            ? timeLeft
-            : "N/A"}
+          {timeLeft ? timeLeft : "No election in progress!"}
         </Typography>
       </CardContent>
       <CardActions className="justify-center">
-        <Button color="error" onClick={() => {}}>
+        <Button color="error" onClick={handleEndElection} disabled={!timeLeft}>
           End election
         </Button>
       </CardActions>

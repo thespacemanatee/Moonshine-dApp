@@ -43,6 +43,8 @@ contract Election {
     event VoterRegistered(address voterAddress, bool isRegistered, bool isVerified, bool hasVoted);
     
     event VoterVerified(address voterAddress);
+
+    event ElectionEnded();
     
     // Here are all the variables
     address admin; // The creator of this election
@@ -243,5 +245,6 @@ contract Election {
     function endElection() public 
     onlyAdmin stillAvailable {
         electionStatus.isTerminated = true;
+        emit ElectionEnded();
     }
 }

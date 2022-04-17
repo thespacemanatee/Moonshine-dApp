@@ -34,9 +34,6 @@ const STAGES = {
 
 const VoterRegistrationContainer = () => {
   const [isSending, setIsSending] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
-  const [transactionReceipt, setTransactionReceipt] =
-    useState<TransactionReceipt>();
 
   const { electionProgress, registerVoter, isRegistered } = useElection();
 
@@ -45,12 +42,8 @@ const VoterRegistrationContainer = () => {
       .once("sending", () => {
         setIsSending(true);
       })
-      .once("transactionHash", (hash: string) => {
-        setTransactionHash(hash);
-      })
       .then((receipt: TransactionReceipt) => {
         console.log("Registered as voter! Receipt:", receipt);
-        setTransactionReceipt(receipt);
       })
       .catch((error) => {
         console.error(error);
@@ -82,7 +75,8 @@ const VoterRegistrationContainer = () => {
           disabled={
             electionProgress === ElectionProgress.NotCreated ||
             electionProgress === ElectionProgress.Ended ||
-            isRegistered
+            isRegistered ||
+            isSending
           }
           onClick={handleRegisterVoter}
         >

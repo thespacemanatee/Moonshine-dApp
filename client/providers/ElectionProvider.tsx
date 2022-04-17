@@ -32,6 +32,8 @@ type ElectionContextProps = {
   startElection: (startTime: number, endTime: number) => PromiEvent<any>;
   registerVoter: () => PromiEvent<any>;
   verifyVoter: (address: string) => PromiEvent<any>;
+  vote: (candidateId: number) => PromiEvent<any>;
+  endElection: () => PromiEvent<any>;
 };
 
 const ElectionContext = React.createContext<ElectionContextProps | null>(null);
@@ -45,11 +47,15 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>();
   const [electionProgress, setElectionProgress] = useState<ElectionProgress>();
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
   const [voters, setVoters] = useState<VoterInfo[]>([]);
 
+  const { contract, currentAddress } = useWeb3();
+
   const getAndSetElectionProgress = (
     isInitialized: boolean,
+    isTerminated: boolean,
     startUnix: number,
     endUnix: number,
     startTime: Date,
@@ -57,19 +63,40 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
   ) => {
     if (isInitialized === false) {
       setElectionProgress(ElectionProgress.NotCreated);
-    } else if (
+      return;
+    }
+    if (isTerminated) {
+      setElectionProgress(ElectionProgress.Ended);
+      return;
+    }
+    if (
       (startUnix === 0 && endUnix === 0) ||
       Date.now() - startTime.getTime() < 0
     ) {
       setElectionProgress(ElectionProgress.NotStarted);
-    } else if (Date.now() - endTime.getTime() > 0) {
-      setElectionProgress(ElectionProgress.Ended);
-    } else {
-      setElectionProgress(ElectionProgress.InProgress);
+      return;
     }
+    if (Date.now() - endTime.getTime() > 0) {
+      setElectionProgress(ElectionProgress.Ended);
+      return;
+    }
+    setElectionProgress(ElectionProgress.InProgress);
   };
 
-  const { contract, currentAddress } = useWeb3();
+  useEffect(() => {
+    const currentVoter = voters.find(
+      (voter) => voter.address.toLowerCase() === currentAddress?.toLowerCase()
+    );
+
+    if (currentVoter) {
+      setIsRegistered(true);
+      setIsVerified(currentVoter.isVerified);
+    } else {
+      setIsRegistered(false);
+      setIsVerified(false);
+    }
+  }, [currentAddress, voters]);
+
   useEffect(() => {
     if (contract == null) {
       return;
@@ -103,6 +130,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       setIsRegistered(tempRegistered);
       getAndSetElectionProgress(
         isInitialized,
+        isTerminated,
         startUnix,
         endUnix,
         startTime,
@@ -186,6 +214,7 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
         });
         getAndSetElectionProgress(
           isStarted,
+          isTerminated,
           startUnix,
           endUnix,
           startTime,
@@ -221,12 +250,26 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
           return temp;
         });
       });
+    const electionEndedEmitter = contract?.events
+      .ElectionEnded(() => {})
+      .on("data", () => {
+        setElectionStatus((electionStatus) => {
+          if (electionStatus) {
+            return {
+              ...electionStatus,
+              isTerminated: true,
+            };
+          }
+        });
+        setElectionProgress(ElectionProgress.Ended);
+      });
     return () => {
       electionCreatedEmitter?.removeAllListeners("data");
       addCandidateEmitter?.removeAllListeners("data");
       electionStartedEmitter?.removeAllListeners("data");
       voterRegisteredEmitter?.removeAllListeners("data");
       voterVerifiedEmitter?.removeAllListeners("data");
+      electionEndedEmitter?.removeAllListeners("data");
     };
   }, [contract?.events]);
 
@@ -272,6 +315,21 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
     [contract?.methods, currentAddress]
   );
 
+  const vote = useCallback(
+    (candidateId: number) => {
+      return contract?.methods
+        .vote(candidateId)
+        .send({ from: currentAddress }) as PromiEvent<any>;
+    },
+    [contract?.methods, currentAddress]
+  );
+
+  const endElection = useCallback(() => {
+    return contract?.methods
+      .endElection()
+      .send({ from: currentAddress }) as PromiEvent<any>;
+  }, [contract?.methods, currentAddress]);
+
   const contextValue = useMemo(
     () => ({
       electionInfo,
@@ -285,6 +343,8 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       startElection,
       registerVoter,
       verifyVoter,
+      vote,
+      endElection,
     }),
     [
       addCandidate,
@@ -293,10 +353,12 @@ const ElectionProvider = ({ children }: ElectionProviderProps) => {
       electionInfo,
       electionProgress,
       electionStatus,
+      endElection,
       isRegistered,
       registerVoter,
       startElection,
       verifyVoter,
+      vote,
       voters,
     ]
   );
