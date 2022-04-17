@@ -51,8 +51,11 @@ const StepperControls = ({
             Back
           </Button>
           <Box sx={{ flex: "1 1 auto" }} />
-          <Button onClick={handleNext} disabled={disabled}>
-            {activeStep === ELECTION_STEPS.length - 1 ? "Finish" : "Next"}
+          <Button
+            onClick={handleNext}
+            disabled={activeStep >= ELECTION_STEPS.length - 1}
+          >
+            Next
           </Button>
         </Box>
       )}

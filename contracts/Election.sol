@@ -40,6 +40,10 @@ contract Election {
         bool isTerminated
     );
     
+    event VoterRegistered(address voterAddress, bool isRegistered, bool isVerified, bool hasVoted);
+    
+    event VoterVerified(address voterAddress);
+    
     // Here are all the variables
     address admin; // The creator of this election
     ElectionInfo electionInfo;
@@ -198,6 +202,11 @@ contract Election {
         });
         voterSet[msg.sender] = newVoter;
         registeredVoters.push(msg.sender);
+        emit VoterRegistered(msg.sender, true, false, false);
+    }
+
+    function getIsRegistered() public view returns (bool) {
+        return voterSet[msg.sender].isRegistered;
     }
 
     function getAllVoters()
@@ -220,6 +229,7 @@ contract Election {
     function verifyVoter(address voterAddress) public 
     onlyAdmin stillAvailable {
         voterSet[voterAddress].isVerified = true;
+        emit VoterVerified(voterAddress);
     }
 
     // Vote

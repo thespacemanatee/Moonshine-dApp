@@ -24,3 +24,10 @@ export type CandidateInfo = {
   slogan: string;
   voteCount: number;
 };
+
+export type VoterInfo = {
+  address: string;
+  isRegistered: boolean;
+  isVerified: boolean;
+  hasVoted: boolean;
+};

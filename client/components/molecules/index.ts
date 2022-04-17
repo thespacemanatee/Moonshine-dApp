@@ -5,3 +5,4 @@ export {
   ELECTION_STEPS,
 } from "./CreateElectionStepper";
 export { default as StepperControls } from "./StepperControls";
+export { default as RegTableDetails } from "./RegTableDetails";

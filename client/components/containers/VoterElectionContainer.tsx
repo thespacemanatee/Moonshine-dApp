@@ -11,6 +11,7 @@ import { ElectionProgress } from "types";
 import pleaseWaitAnim from "../../public/please-wait.json";
 import getReadyAnim from "../../public/get-ready.json";
 import startVotingAnim from "../../public/start-voting.json";
+import shakeHandsAnim from "../../public/shake-hands.json";
 
 const STAGES = {
   [ElectionProgress.NotCreated]: {
@@ -22,12 +23,12 @@ const STAGES = {
     animation: getReadyAnim,
   },
   [ElectionProgress.InProgress]: {
-    title: "Election is open for voting, vote now!",
+    title: "Election is open for voting!",
     animation: startVotingAnim,
   },
   [ElectionProgress.Ended]: {
     title: "Election ended! Thank you for participating!",
-    animation: getReadyAnim,
+    animation: shakeHandsAnim,
   },
 };
 
@@ -37,7 +38,7 @@ const VoterRegistrationContainer = () => {
   const [transactionReceipt, setTransactionReceipt] =
     useState<TransactionReceipt>();
 
-  const { electionProgress, registerVoter } = useElection();
+  const { electionProgress, registerVoter, isRegistered } = useElection();
 
   const handleRegisterVoter = () => {
     registerVoter()
@@ -80,7 +81,8 @@ const VoterRegistrationContainer = () => {
           variant="outlined"
           disabled={
             electionProgress === ElectionProgress.NotCreated ||
-            electionProgress === ElectionProgress.Ended
+            electionProgress === ElectionProgress.Ended ||
+            isRegistered
           }
           onClick={handleRegisterVoter}
         >
