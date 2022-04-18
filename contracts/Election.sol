@@ -65,15 +65,15 @@ contract Election {
     event ElectionEnded();
 
     // Here are all the variables
-    bytes32 public immutable root;
+    bytes32 public immutable root; // Merkle root generated from a set of eligible addresses
     address admin; // The creator of this election
     ElectionInfo electionInfo;
     ElectionStatus electionStatus;
     mapping(uint256 => Candidate) candidateSet;
     uint256 candidateNumber;
-    mapping(address => Voter) voterSet;
-    mapping(address => bool) voted; // mapping of voters who already voted
-    address[] registeredVoters; // Array of address to store address of voters
+    mapping(address => Voter) voterSet; // (OLD - No longer required with merkle root)
+    mapping(address => bool) public voted; // Mapping of voters who already voted
+    address[] registeredVoters; // Array of address to store address of voters (OLD - No longer required with merkle root)
 
     constructor(bytes32 _root) {
         root = _root;
@@ -124,9 +124,11 @@ contract Election {
                 "Election is not available yet!"
             );
         }
-        if (electionStatus.endTime != 0) {
-            if (block.timestamp > electionStatus.endTime)
-                electionStatus.isTerminated = true;
+        if (
+            electionStatus.endTime != 0 &&
+            block.timestamp > electionStatus.endTime
+        ) {
+            electionStatus.isTerminated = true;
         }
         require(!electionStatus.isTerminated, "Election is already ended!");
         _;
@@ -141,8 +143,11 @@ contract Election {
         require(!voted[msg.sender], "Already voted!");
         voted[msg.sender] = true;
         require(electionStatus.isStarted, "Election is not started!");
-        require(voterSet[msg.sender].hasVoted == false);
-        require(voterSet[msg.sender].isVerified == true);
+        require(voterSet[msg.sender].hasVoted == false, "Already voted!");
+        require(
+            voterSet[msg.sender].isVerified == true,
+            "Voter is not verified!"
+        );
         _;
     }
 
@@ -185,7 +190,7 @@ contract Election {
         candidateNumber += 1;
     }
 
-    // End election
+    // Start election
     function startElection(uint256 _startTime, uint256 _endTime)
         public
         onlyAdmin
@@ -200,7 +205,7 @@ contract Election {
         emit ElectionStarted(_startTime, _endTime, true, false);
     }
 
-    // End election
+    // Start election
     function startElectionWithoutDeadline() public onlyAdmin notStarted {
         electionStatus = ElectionStatus({
             startTime: 0,

@@ -4,3 +4,4 @@ build
 .yarn-integrity
 .env
 node_modules
+yarn-error.log
