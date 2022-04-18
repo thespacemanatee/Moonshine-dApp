@@ -1,14 +1,13 @@
 import type { NextPage } from "next";
+import Container from "@mui/material/Container";
 
 import { AdminVerifyContainer } from "@components/containers";
 
 const Verify: NextPage = () => {
   return (
-    <div className="flex justify-center">
-      <div className="w-3/5 min-w-fit p-8">
-        <AdminVerifyContainer />
-      </div>
-    </div>
+    <Container maxWidth="xl" className="p-8">
+      <AdminVerifyContainer />
+    </Container>
   );
 };
 

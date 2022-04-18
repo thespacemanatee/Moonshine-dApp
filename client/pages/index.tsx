@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Lottie from "react-lottie-player";
+import Container from "@mui/material/Container";
 
 import {
   AdminElectionContainer,
@@ -21,11 +22,9 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="w-3/5 min-w-fit p-8">
-        {isAdmin ? <AdminElectionContainer /> : <VoterRegistrationContainer />}
-      </div>
-    </div>
+    <Container maxWidth="xl" className="p-8">
+      {isAdmin ? <AdminElectionContainer /> : <VoterRegistrationContainer />}
+    </Container>
   );
 };
 
