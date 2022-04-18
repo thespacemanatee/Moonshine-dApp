@@ -4,13 +4,17 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import Lottie from "react-lottie-player";
 import "react-circular-progressbar/dist/styles.css";
+
+import partyAnim from "../../public/party.json";
 
 type CandidateDetailsCardProps = {
   candidateName: string;
   slogan: string;
   voteCount: number;
   totalVotes: number;
+  isWinner: boolean;
 };
 
 const CandidateResultsCard = ({
@@ -18,12 +22,12 @@ const CandidateResultsCard = ({
   slogan,
   voteCount,
   totalVotes,
+  isWinner,
 }: CandidateDetailsCardProps) => {
   const percentage = useMemo(
     () => (voteCount / totalVotes) * 100,
     [totalVotes, voteCount]
   );
-  console.log(voteCount, totalVotes, percentage);
 
   return (
     <Card>
@@ -63,6 +67,14 @@ const CandidateResultsCard = ({
             backgroundColor: "#3e98c7",
           })}
         />
+        {isWinner && (
+          <Lottie
+            loop
+            animationData={partyAnim}
+            play
+            className="absolute h-64 w-64"
+          />
+        )}
       </CardContent>
     </Card>
   );

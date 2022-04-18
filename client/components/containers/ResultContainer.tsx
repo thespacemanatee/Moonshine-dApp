@@ -30,13 +30,14 @@ const ResultContainer = () => {
       <ContractDetailsCard />
       {electionProgress === ElectionProgress.Ended ? (
         <Box className="my-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {sortedCandidates(candidates).map((candidate) => (
+          {sortedCandidates(candidates).map((candidate, index) => (
             <CandidateResultsCard
               key={candidate.id}
               candidateName={candidate.candidateName}
               slogan={candidate.slogan}
               voteCount={candidate.voteCount}
               totalVotes={totalVotes}
+              isWinner={index === 0}
             />
           ))}
         </Box>
