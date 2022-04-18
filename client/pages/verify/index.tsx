@@ -8,7 +8,7 @@ const Verify: NextPage = () => {
   return (
     <Container maxWidth="xl" className="p-8">
       <Head>
-        <title>Verify</title>
+        <title>Verify | Moonshine</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <AdminVerifyContainer />

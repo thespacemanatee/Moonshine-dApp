@@ -25,7 +25,7 @@ const Home: NextPage = () => {
   return (
     <Container maxWidth="xl" className="p-8">
       <Head>
-        <title>Election</title>
+        <title>Election | Moonshine</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       {isAdmin ? <AdminElectionContainer /> : <VoterRegistrationContainer />}
