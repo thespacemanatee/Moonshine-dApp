@@ -10,7 +10,7 @@ import { fromUnixTime } from "date-fns";
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
 
-const { ELIGIBLE_ADDRESSES } = require("../../mock/index.ts");
+const { ELIGIBLE_ADDRESSES } = require("../mock/index.js");
 
 import { useWeb3 } from "@providers/index";
 import {

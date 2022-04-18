@@ -3,7 +3,7 @@ const keccak256 = require("keccak256");
 const { expectRevert } = require("@openzeppelin/test-helpers");
 const Election = artifacts.require("Election");
 
-const { ELIGIBLE_ADDRESSES } = require("../mock/index.ts");
+const { ELIGIBLE_ADDRESSES } = require("../client/mock/index.js");
 const uneligibleAccounts = [
   "0x5942d5ECb706e5149EF6a1687028e79C59e547FF",
   "0xA2eF0eC5d15915b644A21AEC588a470765288f5e",
