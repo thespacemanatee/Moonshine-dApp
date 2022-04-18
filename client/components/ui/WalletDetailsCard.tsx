@@ -29,7 +29,7 @@ const WalletDetailsCard = () => {
       <CardActions>
         <Button
           size="small"
-          href={`https:${currentNetworkType}.etherscan.io/address/${currentAddress}`}
+          href={`https://${currentNetworkType}.etherscan.io/address/${currentAddress}`}
           target="_blank"
         >
           View on etherscan.io
