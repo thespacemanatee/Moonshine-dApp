@@ -66,7 +66,7 @@ const ContractDetailsCard = () => {
       <CardActions>
         <Button
           size="small"
-          href={`https:${currentNetworkType}.etherscan.io/address/${contractAddress}`}
+          href={`https://${currentNetworkType}.etherscan.io/address/${contractAddress}`}
           target="_blank"
         >
           View on etherscan.io

@@ -4,6 +4,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { TransactionReceipt } from "web3-core";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import { motion } from "framer-motion";
 import addDays from "date-fns/addDays";
 import { getUnixTime } from "date-fns";
@@ -46,24 +47,27 @@ const EnterElectionDetails = () => {
 
   return (
     <form ref={formRef} className="flex flex-col items-center">
-      <TextField
-        label="Election Name"
-        variant="outlined"
-        required
-        onChange={(e) => setElectionName(e.target.value)}
-        className="w-1/2 min-w-fit"
-      />
-      <TextField
-        label="Organisation Name"
-        variant="outlined"
-        required
-        onChange={(e) => setOrganisationName(e.target.value)}
-        className="mt-4 w-1/2 min-w-fit"
-      />
+      <Box className="w-1/2">
+        <TextField
+          label="Election Name"
+          variant="outlined"
+          required
+          className="w-full"
+          onChange={(e) => setElectionName(e.target.value)}
+        />
+      </Box>
+      <Box className="my-4 w-1/2">
+        <TextField
+          label="Organisation Name"
+          variant="outlined"
+          required
+          onChange={(e) => setOrganisationName(e.target.value)}
+          className="w-full"
+        />
+      </Box>
       <Button
         variant="outlined"
         disabled={isSending || electionInfo?.isInitialized}
-        className="m-4"
         onClick={handleCreate}
       >
         Create Election
@@ -104,25 +108,29 @@ const AddCandidates = () => {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <form ref={formRef} className="flex flex-col items-center">
-        <TextField
-          label="Candidate Name"
-          variant="outlined"
-          required
-          value={candidateName}
-          onChange={(e) => setCandidateName(e.target.value)}
-          className="w-full"
-        />
-        <TextField
-          label="Candidate Slogan"
-          variant="outlined"
-          required
-          value={candidateSlogan}
-          onChange={(e) => setCandidateSlogan(e.target.value)}
-          className="mt-4 w-full"
-        />
+        <Box className="w-full">
+          <TextField
+            label="Candidate Name"
+            variant="outlined"
+            required
+            value={candidateName}
+            onChange={(e) => setCandidateName(e.target.value)}
+            className="w-full"
+          />
+        </Box>
+
+        <Box className="my-4 w-full">
+          <TextField
+            label="Candidate Slogan"
+            variant="outlined"
+            required
+            value={candidateSlogan}
+            onChange={(e) => setCandidateSlogan(e.target.value)}
+            className="w-full"
+          />
+        </Box>
         <Button
           variant="outlined"
-          className="m-4"
           onClick={handleAddCandidate}
           disabled={isSending}
         >
@@ -182,13 +190,21 @@ const StartElection = () => {
           label="Election Start"
           value={startDate}
           onChange={setStartDate}
-          renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => (
+            <Box className="w-full">
+              <TextField className="w-full" {...params} />
+            </Box>
+          )}
         />
         <DateTimePicker
           label="Election End"
           value={endDate}
           onChange={setEndDate}
-          renderInput={(params) => <TextField className="mt-4" {...params} />}
+          renderInput={(params) => (
+            <Box className="my-4 w-full">
+              <TextField className="w-full" {...params} />
+            </Box>
+          )}
         />
       </div>
       <Button
