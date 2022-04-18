@@ -47,7 +47,7 @@ const EnterElectionDetails = () => {
 
   return (
     <form ref={formRef} className="flex flex-col items-center">
-      <Box className="w-1/2">
+      <Box className="w-full md:w-1/2">
         <TextField
           label="Election Name"
           variant="outlined"
@@ -56,7 +56,7 @@ const EnterElectionDetails = () => {
           onChange={(e) => setElectionName(e.target.value)}
         />
       </Box>
-      <Box className="my-4 w-1/2">
+      <Box className="my-4 w-full md:w-1/2">
         <TextField
           label="Organisation Name"
           variant="outlined"
@@ -185,13 +185,13 @@ const StartElection = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex w-1/2 flex-col">
+      <div className="flex w-full flex-col items-center">
         <DateTimePicker
           label="Election Start"
           value={startDate}
           onChange={setStartDate}
           renderInput={(params) => (
-            <Box className="w-full">
+            <Box className="w-full md:w-1/2">
               <TextField className="w-full" {...params} />
             </Box>
           )}
@@ -201,7 +201,7 @@ const StartElection = () => {
           value={endDate}
           onChange={setEndDate}
           renderInput={(params) => (
-            <Box className="my-4 w-full">
+            <Box className="my-4 w-full md:w-1/2">
               <TextField className="w-full" {...params} />
             </Box>
           )}
@@ -254,7 +254,7 @@ const AdminElectionContainer = () => {
   return (
     <div className="flex flex-1 flex-col">
       <ContractDetailsCard />
-      <div className="mt-12 w-1/2 min-w-fit self-center">
+      <div className="mt-12 w-full min-w-fit self-center md:w-1/2">
         <ElectionDetailsCard />
       </div>
       <div className="my-12">
